@@ -40,6 +40,7 @@ class BuilderFactory
      */
     public static function get($name)
     {
+        // 初炲化建構物件
         $class = '\\'.__NAMESPACE__.'\\builder\\'.$name.'Builder';
         return new $class();
     }

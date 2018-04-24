@@ -161,6 +161,14 @@ class NueipIO
         return $this;
     }
     
+    
+    /**
+     * 取得定義檔
+     */
+    public function getConfig()
+    {
+        return $this->_config;
+    }
     /**
      * ***********************************************
      * ************** Building Function **************
