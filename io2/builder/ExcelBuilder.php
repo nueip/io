@@ -312,16 +312,16 @@ class ExcelBuilder
         \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($footStyle, $this->_spreadsheet, $footRange);
         // ======
         
-        // ====== 處理凍結欄位 ======
-        // 取得樣式 - 凍結欄位
-        $freezeCol = $this->_style->getFreeze();
-        if ($freezeCol) {
-            $contentRange = $this->offsetMap('content', 'rowStart');
-            $freezeCell = $freezeCol.$contentRange;
-            // 凍結欄位
-            \app\libraries\io2\builder\ExcelStyleBuilder::setFreeze($freezeCell, $this->_spreadsheet);
-        }
-        // ======
+//         // ====== 處理凍結欄位 ======
+//         // 取得樣式 - 凍結欄位
+//         $freezeCol = $this->_style->getFreeze();
+//         if ($freezeCol) {
+//             $contentRange = $this->offsetMap('content', 'rowStart');
+//             $freezeCell = $freezeCol.$contentRange;
+//             // 凍結欄位
+//             \app\libraries\io2\builder\ExcelStyleBuilder::setFreeze($freezeCell, $this->_spreadsheet);
+//         }
+//         // ======
         
         // 取得工作表
 //         $sheet = $this->_builder->getSheet();
@@ -423,7 +423,7 @@ class ExcelBuilder
             $conf['styleName'] = isset($config['config']['style']) ? $config['config']['style'] : '';
             // 檢查定義名稱是否重複
             if (isset($this->_offsetMap[$type]['detail'][$configName])) {
-                throw new Exception('Config Name Duplicate: '.$configName, 404);
+                throw new \Exception('Config Name Duplicate: '.$configName, 404);
             }
             $this->_offsetMap[$type]['detail'][$configName] = $conf;
         }

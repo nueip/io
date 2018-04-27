@@ -204,15 +204,15 @@ class NueipStyle
             'font-size' => 16,//字體大小
             'font-bold' => true,//字體粗體
             'font-color' => 'white',//字體顏色
-            'border-all-style' => 'thin',//欄線樣式-全部
             'border-outline-style' => 'thick',//外圈欄線樣式
             'background-color' => 'FF0094D8',//儲存格背景顏色
         );
         
         $this->_contentStyle = array(
+            'border-all-color' => 'FFAAAAAA',//欄線顏色-全部
             'border-outline-style' => 'thick',//外圈欄線樣式
-            'row-odd-background-color' => 'F7F7F7',//內容奇數列背景顏色
-            'row-even-background-color' => 'white'//內容偶數列背景顏色
+//             'row-odd-background-color' => 'F7F7F7',//內容奇數列背景顏色
+//             'row-even-background-color' => 'white'//內容偶數列背景顏色
         );
         
         $this->_footStyle = array(

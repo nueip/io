@@ -371,16 +371,6 @@ class ExcelStyleBuilder
                     $borderColor = self::excelColorMap($value);
                     $sheet->getStyle($cellRange)->getBorders()->getRight()->getColor()->setARGB($borderColor);
                     break;
-                case 'border-outline-color':
-                    // 範圍內右框顏色
-                    $borderColor = self::excelColorMap($value);
-                    $spreadsheet->getStyle($cellRange)->getBorders()->getOutline()->getColor()->setARGB($borderColor);
-                    break;
-                case 'border-inside-color':
-                    // 範圍內右框顏色
-                    $borderColor = self::excelColorMap($value);
-                    $spreadsheet->getStyle($cellRange)->getBorders()->getInside()->getColor()->setARGB($borderColor);
-                    break;
                 case 'background-color':
                     // 背景顏色
                     $backgroundColor = self::excelColorMap($value);

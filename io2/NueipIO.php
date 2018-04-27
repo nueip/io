@@ -146,7 +146,7 @@ class NueipIO
      */
     public function setList($list)
     {
-        $this->_list = $list;
+        $this->_list[] = $list;
         return $this;
     }
     
@@ -161,7 +161,6 @@ class NueipIO
         return $this;
     }
     
-    
     /**
      * 取得定義檔
      */
@@ -169,6 +168,7 @@ class NueipIO
     {
         return $this->_config;
     }
+    
     /**
      * ***********************************************
      * ************** Building Function **************
