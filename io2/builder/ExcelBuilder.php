@@ -9,10 +9,17 @@ namespace app\libraries\io2\builder;
  */
 class ExcelBuilder
 {
-
+    
     /**
      * 資料
-     * 
+     *
+     * @var array
+     */
+    protected $_version = '0.1';
+    
+    /**
+     * 資料
+     *
      * @var array
      */
     protected $_data;
@@ -36,7 +43,7 @@ class ExcelBuilder
      *
      * @var array $list[$key] = array('value' => '值', 'text' => '文字', 'type' => '資料類型');
      */
-    protected $_list;
+    protected $_listMap;
     
     /**
      * 輸出暫存資料
@@ -44,13 +51,6 @@ class ExcelBuilder
      * @var object
      */
     protected $_builder;
-    
-    /**
-     * Excel物件暫存資料
-     *
-     * @var array
-     */
-    protected $_spreadsheet;
     
     /**
      * 欄位座標參數表
@@ -106,7 +106,10 @@ class ExcelBuilder
      */
     public function setConfig($config)
     {
+        // 設定檔物件
         $this->_config = $config;
+        // 載入下拉選單定義
+        $this->_listMap = $this->_config->getList();
         return $this;
     }
     
@@ -123,14 +126,14 @@ class ExcelBuilder
     }
     
     /**
-     * 載入下拉選單定義
+     * 載入下拉選單定義 - 額外定義資料
      *
      * @param string $list
      *            定義檔
      */
-    public function setList($list)
+    public function setList($keyName, $listDEfined)
     {
-        $this->_list = $list;
+        $this->_listMap[$keyName] = $listDEfined;
         return $this;
     }
 
@@ -161,6 +164,7 @@ class ExcelBuilder
 
     public function output()
     {
+        $this->_builder->setSheet(0);
         $this->_builder->output();
     }
 
@@ -209,7 +213,7 @@ class ExcelBuilder
     public function contentBuyilder()
     {
         // 重整內容資料
-        $this->rebuildContent();
+        $this->_rebuildContent();
         
         // 取得定義資料
         $content = $this->_config->content();
@@ -279,90 +283,130 @@ class ExcelBuilder
     public function styleBuilder()
     {
         // Excel物件暫存資料
-        $this->_spreadsheet = $this->_builder->getSpreadsheet();
+        $spreadsheet = $this->_builder->getSpreadsheet();
         // 取得工作表
         $sheet = $this->_builder->getSheet();
         
-        // ====== 取得樣式 ======
-        // 取得預設樣式
-        $defaultStyle = $this->_style->getDefault();
-        // 取得標題樣式
-        $titleStyle = $this->_style->getTitle();
-        // 取得內容樣式
-        $contentStyle = $this->_style->getContent();
-        // 取得結尾樣式
-        $footStyle = $this->_style->getFoot();
-        // ======
-
-        // ====== 取得座標 ======
-        $sheetRange = $this->offsetMap('sheet');
-        $titleRange = $this->offsetMap('title');
-        $contentRange = $this->offsetMap('content');
-        $footRange = $this->offsetMap('foot');
-        // ======
-        
-        // ====== 建立樣式 ======
+        // ====== 建立樣式-類型 ======
         // 建立Excel樣式 - 預設樣式
-        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelDefaultStyle($defaultStyle, $this->_spreadsheet);
+        $defaultStyle = $this->_style->getDefault();
+        $sheetRange = $this->offsetMap('sheet');
+        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelDefaultStyle($defaultStyle, $spreadsheet);
+        
         // 建立Excel樣式 - 標題樣式
-        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($titleStyle, $this->_spreadsheet, $titleRange);
+        $titleStyle = $this->_style->getTitle();
+        $titleRange = $this->offsetMap('title');
+        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($titleStyle, $spreadsheet, $titleRange);
+        
         // 建立Excel樣式 - 內容樣式
-        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($contentStyle, $this->_spreadsheet, $contentRange);
+        $contentStyle = $this->_style->getContent();
+        $contentRange = $this->offsetMap('content');
+        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($contentStyle, $spreadsheet, $contentRange);
+        
         // 建立Excel樣式 - 結尾樣式
-        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($footStyle, $this->_spreadsheet, $footRange);
+        $footStyle = $this->_style->getFoot();
+        $footRange = $this->offsetMap('foot');
+        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($footStyle, $spreadsheet, $footRange);
         // ======
         
-//         // ====== 處理凍結欄位 ======
-//         // 取得樣式 - 凍結欄位
-//         $freezeCol = $this->_style->getFreeze();
-//         if ($freezeCol) {
-//             $contentRange = $this->offsetMap('content', 'rowStart');
-//             $freezeCell = $freezeCol.$contentRange;
-//             // 凍結欄位
-//             \app\libraries\io2\builder\ExcelStyleBuilder::setFreeze($freezeCell, $this->_spreadsheet);
-//         }
-//         // ======
+        // ====== 建立樣式-從Config ======
+        // === 標題設定 ===
+        $config = $this->_config->title();
+        foreach ($config as $idx => $conf) {
+            // 樣式建構Style - 從Config
+            $this->_configStyleBuilder($conf, $spreadsheet);
+        }
         
-        // 取得工作表
-//         $sheet = $this->_builder->getSheet();
+        // === 內容設定 ===
+        $config = $this->_config->content();
+        // 樣式建構Style - 從Config
+        $this->_configStyleBuilder($config, $spreadsheet);
         
-//         $cellRange = 'A1:B2';
-//         dump($sheet->getColumnDimension($cellRange));
+        // === 結尾設定 ===
+        $config = $this->_config->foot();
+        foreach ($config as $idx => $conf) {
+            // 樣式建構Style - 從Config
+            $this->_configStyleBuilder($conf, $spreadsheet);
+        }
+        // ======
         
-//         exit;
-        
-        
-        // 
-        
-//         var_export($defaultStyle);
-        
-//         exit;
-        
-//         var_export($default);
-        
-        
-        
-        
-        
-// //         dump($this->_style);
-//         exit;
-        
-        
-        
-        
-        
+        // ====== 處理凍結欄位 ======
+        // 取得樣式 - 凍結欄位
+        $freezeCol = $this->_style->getFreeze();
+        if ($freezeCol) {
+            $contentRange = $this->offsetMap('content', 'rowStart');
+            $freezeCell = $freezeCol.$contentRange;
+            // 凍結欄位
+            \app\libraries\io2\builder\ExcelStyleBuilder::setFreeze($freezeCell, $spreadsheet);
+        }
+        // ======
     }
     
     /**
      * 下拉選單建構
      */
     public function listBuilder()
-    {}
+    {
+        // 記錄原工作表索引 - 取得下拉選單的目標工作表索引
+        $origSheetIndex = $this->_builder->getActiveSheetIndex();
+        
+        
+        // ====== 取得參數工作表 ======
+        // 取得工作表數量
+        $sheetCount = $this->_builder->getSheetCount();
+        // 新增參數Sheet - 下拉選單對映表sheet
+        $this->_builder->setSheet($sheetCount, 'ConfigSheet');
+        // 記錄參數工作表索引
+        $configSheetIndex = $this->_builder->getActiveSheetIndex();
+        // 取得參數工作表
+        $configSheet = $this->_builder->getSheet();
+        // ======
+        
+        
+        // ====== 參數工作表格式 ======
+        // 保護工作表
+        $configSheet->getProtection()->setSheet(true);
+        // 隱藏工作表
+        $configSheet->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_VERYHIDDEN);
+        // 設定A欄寬度
+        $configSheet->getDefaultColumnDimension()->setWidth('15');
+        $configSheet->getColumnDimension('A')->setWidth('25');
+        // 預設儲存格格式:文字
+        $this->_builder->getSpreadsheet()->getDefaultStyle()->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+        // ======
+        
+        
+        // ====== 參數工作表內容 - 基本參數 ======
+        // 基本參數設定
+        $this->_builder->addRows([
+            [
+                '匯入功能名稱',
+                'AddIns',
+            ],
+            [
+                '版本資訊',
+                $this->_version
+            ]
+        ]);
+        // ======
+        
+        
+        // 建構下拉選單
+        $this->_listBuilder($origSheetIndex, $configSheetIndex);
+        
+        // 回原工作表
+        $this->_builder->setSheet($origSheetIndex);
+        
+        return ;
+        
+        // 取得工作表 - 從名子
+        $spreadsheet = $this->_builder->getSpreadsheet()->getSheetByName('ConfigSheete');
+    }
 
     /**
-     * **********************************************
-     * ************** Private Function **************
-     * **********************************************
+     * *********************************************
+     * ************** Offset Function **************
+     * *********************************************
      */
     
     /**
@@ -386,8 +430,6 @@ class ExcelBuilder
     /**
      * 座標記錄
      * 
-     * 
-     * 
      * @param string $type 定義種類名稱 title,content,foot,sheet
      * @param string $config 內容，如果為全域$type時，類型為string
      * @param string $colStart 起始欄
@@ -405,7 +447,6 @@ class ExcelBuilder
         // 建構座標內容
         $conf = array(
             'configName' => '',
-            'styleName' => '',
             'colStart' => $colStart,
             'rowStart' => $rowStart,
             'colEnd' => $colEnd,
@@ -420,7 +461,6 @@ class ExcelBuilder
         } else {
             // 子定義種類
             $conf['configName'] = $configName = isset($config['config']['name']) ? $config['config']['name'] : '';
-            $conf['styleName'] = isset($config['config']['style']) ? $config['config']['style'] : '';
             // 檢查定義名稱是否重複
             if (isset($this->_offsetMap[$type]['detail'][$configName])) {
                 throw new \Exception('Config Name Duplicate: '.$configName, 404);
@@ -438,7 +478,7 @@ class ExcelBuilder
     /**
      * 重整內容資料
      */
-    protected function rebuildContent()
+    protected function _rebuildContent()
     {
         // 取得定義資料
         $content = $this->_config->content();
@@ -466,4 +506,129 @@ class ExcelBuilder
         return $this->_data;
     }
     
+    /**
+     * 樣式建構Style - 從Config
+     */
+    protected function _configStyleBuilder($config, &$spreadsheet)
+    {
+        // 設定資料類型
+        $blockType = $config['config']['type'];
+        
+        // === 全設定區塊 ===
+        // 取得儲存格範圍
+        $blockName = $config['config']['name'];
+        $blockRange = $this->offsetMap($blockType, 'range', $blockName);
+        
+        // 取得樣式資料
+        $style = $config['config']['style'];
+        $className = $config['config']['class'];
+        $class = $this->_style->getClass($className);
+        
+        // 設定style樣式
+        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($style, $spreadsheet, $blockRange);
+        
+        // 設定Class樣式
+        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
+        
+        // === 欄位 ===
+        foreach ($config['defined'] as $idx => $conf) {
+            // 取得儲存格範圍
+            // 取得資料Key對映的Excel欄位碼
+            $keyName = $conf['key'];
+            $colCode = $this->_builder->getColumnMap($keyName);
+            // 取得內容列數起訖
+            $rowStart = $this->offsetMap($blockType, 'rowStart', $blockName);
+            $rowEnd= $this->offsetMap($blockType, 'rowEnd', $blockName);
+            $blockRange = $colCode.$rowStart.':'.$colCode.$rowEnd;
+            
+            // 取得樣式資料
+            $style = isset($conf['style']) ? $conf['style'] : array();
+            $className = isset($conf['class']) ? $conf['class'] : '';
+            $class = $this->_style->getClass($className);
+            
+            // 設定style樣式
+            \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($style, $spreadsheet, $blockRange);
+            
+            // 設定Class樣式
+            \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
+        }
+    }
+    
+    
+    /**
+     * 建構下拉選單
+     * 
+     * @param int $origSheetIndex 原工作表索引，即下拉選單的目標
+     * @param int $configSheetIndex 參數工作表索引
+     */
+    protected function _listBuilder($origSheetIndex, $configSheetIndex)
+    {
+        // 取得目標工作表、參數工作表
+        $configSheet = $this->_builder->setSheet($configSheetIndex)->getSheet();
+        $origSheet = $this->_builder->setSheet($origSheetIndex)->getSheet();
+        
+        // 取得內容列數起訖
+        $rowStart = $this->offsetMap('content', 'rowStart');
+        $rowEnd= $this->offsetMap('content', 'rowEnd');
+        
+        // 取得參數工作表目前列數
+        $csRow = $configSheet->getHighestRow();
+        
+        // 取得下拉選單設定
+        $listMap = $this->_listMap;
+        
+        // 取得內容定義資料
+        $content = $this->_config->content();
+        $cDefined = array_column($content['defined'], 'value', 'key');
+        
+        // 遍歷資料範本 - 建構下拉選單值的資料表，並繫結到目標欄位
+        foreach ($cDefined as $key => $colTitle) {
+            // 跳過不處理的欄位
+            if (!isset($listMap[$key])) {
+                continue;
+            }
+            
+            
+            // ====== 將下拉選單項目寫到參數工作表 ======
+            // 取得下拉選單項目定義資料
+            $listItem = array_column($listMap[$key], 'text');
+            // 將下拉選單名稱、下拉選單定義合併，名稱在第一欄
+            $listItem = array_merge(array(
+                $colTitle
+            ), $listItem);
+            // 將下拉選單項目寫到參數工作表
+            $this->_builder->setSheet($configSheet)->setRowOffset($csRow)->addRows([
+                $listItem
+            ]);
+            // 更新參數工作列數
+            $csRow = $configSheet->getHighestRow();
+            // 計算定義佔用的欄數，並取得該欄的代碼
+            $lastColCode = $this->_builder->num2alpha(sizeof($listItem));
+            // ======
+            
+            
+            // ====== 將下拉選單繫結到目標工作表 ======
+            // 取得資料Key對映的Excel欄位碼
+            $colCode = $this->_builder->getColumnMap($key);
+            $this->_builder->setSheet($origSheet);
+            // 遍歷目標欄位的各cell - 下拉選單需一cell一cell的繫結
+            for ($i = $rowStart; $i <= $rowEnd; $i ++) {
+                $origSheet->getCell($colCode. $i)
+                ->getDataValidation()
+                ->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST)
+                ->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION)
+                ->setAllowBlank(false)
+                ->setShowInputMessage(true)
+                ->setShowErrorMessage(true)
+                ->setShowDropDown(true)
+                ->setErrorTitle('輸入的值有誤')
+                ->setError('您輸入的值不在下拉框列表內.')
+                ->setPromptTitle($colTitle)
+                ->
+                // 把sheet名为mySheet2的A1，A2,A3作为选项
+                setFormula1($configSheet->getTitle() . '!$B$' . $csRow . ':$' . $lastColCode . '$' . $csRow);
+            }
+            // ======
+        }
+    }
 }

@@ -32,7 +32,7 @@ class NueipIO
      *
      * @var array $list[$key] = array('value' => '值', 'text' => '文字', 'type' => '資料類型');
      */
-    protected $_list = array();
+    protected $_listMap = array();
     
     /**
      * 建構函式
@@ -144,9 +144,9 @@ class NueipIO
      *
      * @param string $style IO物件
      */
-    public function setList($list)
+    public function setList($keyName, $listDEfined)
     {
-        $this->_list[] = $list;
+        $this->_listMap[$keyName] = $listDEfined;
         return $this;
     }
     
@@ -183,7 +183,9 @@ class NueipIO
         $this->_builder->setData($this->_data);
         $this->_builder->setConfig($this->_config);
         $this->_builder->setStyle($this->_style);
-        $this->_builder->setList($this->_list);
+        foreach ($this->_listMap as $keyName => $listDEfined) {
+            $this->_builder->setList($keyName, $listDEfined);
+        }
         
         $this->_builder->build()->output();
     }

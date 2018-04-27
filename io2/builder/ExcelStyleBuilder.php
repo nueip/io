@@ -235,8 +235,10 @@ class ExcelStyleBuilder
      */
     public static function setExcelRangeStyle(Array $style, &$spreadsheet, $cellRange)
     {
-        // 取得工作表
-        $sheet = $spreadsheet->getActiveSheet();
+        if (empty($style)) {
+            // 沒有樣式資料，不處理
+            return new static();
+        }
         
         // === 解析 - 欄位座標範圍 ===
         $crp = self::cellRangeParser($cellRange);
@@ -252,6 +254,9 @@ class ExcelStyleBuilder
         // 取得列-起訖
         $rowStart = $crp[2];
         $rowEnd = $crp[4];
+        
+        // 取得工作表
+        $sheet = $spreadsheet->getActiveSheet();
         
         // 遍歷樣式集 - 處理樣式設定
         foreach ($style as $key => $value) {
@@ -397,6 +402,10 @@ class ExcelStyleBuilder
         $sheet->freezePane($freezeCell);
     }
     
+    
+    public static function listBuilder()
+    {}
+    
     /**
      * ***********************************************
      * ************** Building Function **************
@@ -507,6 +516,6 @@ class ExcelStyleBuilder
     public static function excelFormatMap($format)
     {
         $formatMap = self::$_styleMap['excelFormatMap'];
-        return isset($formatMap[$format]) ? $formatMap[$format] : \PhpOffice\PhpSpreadsheet\Style\Border::FORMAT_TEXT;
+        return isset($formatMap[$format]) ? $formatMap[$format] : \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT;
     }
 }

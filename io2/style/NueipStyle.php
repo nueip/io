@@ -57,10 +57,10 @@ class NueipStyle
     protected $_coorStyle= array();
     
     /**
-     * 設定檔樣式集 - 設定成名稱，讓格式定義的屬性style取用
+     * 設定檔樣式集 - 設定成名稱，讓格式定義的屬性class取用
      * @var array
      */
-    protected $_nameStyleMap = array();
+    protected $_classMap = array();
     
     
     /**
@@ -86,6 +86,9 @@ class NueipStyle
     {
         // 初始化 - 預設樣式
         $this->initDefault();
+        
+        // 初始化 - 樣式集
+        $this->classMap();
     }
 
     /**
@@ -148,6 +151,15 @@ class NueipStyle
     }
     
     /**
+     * 取得樣式集
+     * 
+     * @param string $className 樣式集名稱
+     */
+    public function getClass($className)
+    {
+        return isset($this->_classMap[$className]) ? $this->_classMap[$className] : array();
+    }
+    /**
      * **********************************************
      * ************** Private Function **************
      * **********************************************
@@ -193,17 +205,17 @@ class NueipStyle
             'font-name' => '微軟正黑體', // 字體字型
             'font-size' => 11, // 字體大小
             'font-color' => 'black', // 字體顏色
-            'align-horizontal' => 'center', // 水平對齊
             'align-vertical' => 'center', // 垂直對齊
             'border-all-style' => 'thin',//欄線樣式-全部
             'border-all-color' => 'FF9F9FA0',//欄線顏色-全部
         );
         
         $this->_titleStyle = array(
-            'height' => 28.5,//儲存格欄高
-            'font-size' => 16,//字體大小
+//             'height' => 28.5,//儲存格欄高
+            'font-size' => 12,//字體大小
             'font-bold' => true,//字體粗體
             'font-color' => 'white',//字體顏色
+            'align-horizontal' => 'center', // 水平對齊
             'border-outline-style' => 'thick',//外圈欄線樣式
             'background-color' => 'FF0094D8',//儲存格背景顏色
         );
@@ -219,6 +231,17 @@ class NueipStyle
             'font-color' => 'white',//字體顏色
             'background-color' => 'FFA0A0A2',//儲存格背景顏色
             'align-horizontal' => 'left', // 水平對齊
+        );
+    }
+    /**
+     * 初始化 - 預設樣式
+     */
+    protected function classMap()
+    {
+        $this->_classMap['example'] = array(
+            'font-color' => 'black',//字體顏色
+            'font-bold' => false,//字體粗體
+            'background-color' => 'FFDBDCDC'//儲存格背景顏色
         );
     }
     

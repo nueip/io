@@ -9,6 +9,8 @@ namespace app\libraries\io2\config;
  * 優化：
  * 1. 動態標題，需
  * 
+ * 注意：
+ * 對建表建構因需要外連SQL，所以為避免第一次使用時還沒建構完成，建議使用建構實例的方式：new AddInsConfig()
  * 
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
  *
@@ -61,6 +63,12 @@ class AddInsConfig
     private static $_listMap = array();
     
     /**
+     * 暫存用數
+     * @var array
+     */
+    private static $_cache = array();
+    
+    /**
      * 資料範本 - 鍵值表及預設值
      * 
      * 如需動態設定預設值時，需取出本表修改後回寫
@@ -87,7 +95,7 @@ class AddInsConfig
         'emp_insurance' => '1',
         'labor_retir_system' => '1',
         'labor_retir_salary' => '',
-        'com_withhold_rate' => '',
+        'com_withhold_rate' => '0',
         'emp_withhold_rate' => '0',
         'ins_category' => '443',
         'heal_ins_salary' => '',
@@ -110,7 +118,17 @@ class AddInsConfig
      */
     public function __destruct()
     {}
-
+    
+    
+    /**
+     * 重新初始化
+     */
+    public function reInitialize()
+    {
+        self::$isInited = false;
+        self::initialize();
+    }
+    
     /**
      * 初始化
      */
@@ -137,6 +155,7 @@ class AddInsConfig
         // ======
         
         // ====== 初始化對映表 ======
+        self::$_listMap = array();
         // 對映表建構 - 國別 - u_country
         self::countryMapBuilder();
         // 對映表建構 - 投保單位 - iu_sn
@@ -157,10 +176,6 @@ class AddInsConfig
         self::subsidyMapBuilder();
         // 對映表建構 - 級距 - 勞保、勞退、健保
         self::levelMapBuilder();
-        // ======
-        
-        // ====== 公司 ======
-        
         // ======
         
         return true;
@@ -229,16 +244,14 @@ class AddInsConfig
         return self::$_foot;
     }
     
-    
-    
     /**
      * 資料範本 - 鍵值表及預設值 - 取得/設定
-     * 
+     *
      * 如需動態設定預設值時，需取出本表修改後回寫
-     * 
+     *
      * 取得：無參數時
      * 設定：有參數時
-     * 
+     *
      * @return array
      */
     public static function dataTemplate($data = null)
@@ -248,6 +261,21 @@ class AddInsConfig
         }
         
         return self::$_dataTemplate;
+    }
+    
+    /**
+     * 資料範本 - 鍵值表及預設值 - 取得/設定
+     *
+     * 如需動態設定預設值時，需取出本表修改後回寫
+     *
+     * 取得：無參數時
+     * 設定：有參數時
+     *
+     * @return array
+     */
+    public static function getList()
+    {
+        return self::$_listMap;
     }
     
     /**
@@ -266,7 +294,10 @@ class AddInsConfig
      */
     public static function contentRefactor(Array & $data)
     {
-        foreach ($data as $k => &$row) {
+        // 將現有對映表轉成value=>text格式存入暫存
+        self::value2TextMapBuilder();
+        
+        foreach ($data as $key => &$row) {
             $row = (array)$row;
             
             // 以資料內容範本為模版合併資料
@@ -274,6 +305,9 @@ class AddInsConfig
             
             // 內容整併處理時執行 - 迴圈內自定步驟
             self::onRefactor($key, $row);
+            
+            // 執行資料轉換 value => text
+            self::value2Text($key, $row);
         }
         
         return new static();
@@ -289,7 +323,7 @@ class AddInsConfig
      */
     public static function contentFilter(Array & $data)
     {
-        foreach ($data as $k => &$row) {
+        foreach ($data as $key => &$row) {
             $row = (array)$row;
             
             // 以資料內容範本為模版過濾多餘資料
@@ -300,9 +334,30 @@ class AddInsConfig
     }
     
     /**
+     * 執行資料轉換 value => text
+     *
+     * @param string $key 當次迴圈的Key值
+     * @param array $row 當次迴圈的內容
+     */
+    public static function value2Text($key, &$row)
+    {
+        // 遍歷資料，並轉換內容
+        foreach ($row as $k => &$v) {
+            // 檢查是否需要內容轉換
+            if (!isset(self::$_cache['value2Text'][$k])) {
+                continue;
+            }
+            
+            // 處理資料轉換
+            $v = isset(self::$_cache['value2Text'][$k][$v]) ? self::$_cache['value2Text'][$k][$v] : '';
+        }
+    }
+    
+    /**
      * 內容整併處理時執行 - 迴圈內自定步驟
-     * 
-     * @param array $row
+     *
+     * @param string $key 當次迴圈的Key值
+     * @param array $row 當次迴圈的內容
      */
     public static function onRefactor($key, &$row)
     {
@@ -310,6 +365,11 @@ class AddInsConfig
         if (isset($row['arrive_date'])) {
             $row['add_date'] = $row['arrive_date'];
         }
+        
+        // 設定投保單位 - 預設第一個投保單位
+        $row['iu_sn'] = key(self::$_listMap['rate_company']);
+        // 設定公司提繳率 - 預設第一個投保單位 - 因為無法聯動公司選項來變更提繳率
+        $row['com_withhold_rate'] = current(self::$_listMap['rate_company']);
     }
     
     /**
@@ -325,6 +385,32 @@ class AddInsConfig
      * ************** Map Builder Function **************
      * **************************************************
      */
+    
+    /**
+     * 將現有對映表轉成value=>text格式存入暫存
+     */
+    public static function value2TextMapBuilder()
+    {
+        // 初始化暫存
+        self::$_cache['value2Text'] = array();
+        
+        foreach (self::$_listMap as $key => $map) {
+            self::$_cache['value2Text'][$key] = array_column($map, 'text', 'value');
+        }
+    }
+    
+    /**
+     * 將現有對映表轉成text=>value格式存入暫存
+     */
+    public static function text2ValueMapBuilder()
+    {
+        // 初始化暫存
+        self::$_cache['text2Value'] = array();
+        
+        foreach (self::$_listMap as $key => $map) {
+            self::$_cache['text2Value'][$key] = array_column($map, 'value', 'text');
+        }
+    }
     
     /**
      * 對映表建構 - 國別 - u_country
@@ -681,32 +767,51 @@ class AddInsConfig
             'config' => array(
                 'type' => 'title',
                 'name' => 'title1',
-                'style' => 'title1'
+                'style' => array(
+                    'font-size' => '16',
+                ),
+                'class' => 'title1'
             ),
             'defined' => array(
-                array(
+                't1' => array(
                     'key' => 't1',
                     'value' => '基本資料',
                     'col' => '12',
-                    'row' => '1'
+                    'row' => '1',
+                    'style' => array(),
+                    'class' => '',
+                    'default' => '',
+                    'list' => '',
                 ),
-                array(
+                't2' => array(
                     'key' => 't2',
                     'value' => '勞工保險',
                     'col' => '5',
-                    'row' => '1'
+                    'row' => '1',
+                    'style' => array(),
+                    'class' => '',
+                    'default' => '',
+                    'list' => '',
                 ),
-                array(
+                't3' => array(
                     'key' => 't3',
                     'value' => '勞工退休金',
                     'col' => '4',
-                    'row' => '1'
+                    'row' => '1',
+                    'style' => array(),
+                    'class' => '',
+                    'default' => '',
+                    'list' => '',
                 ),
-                array(
+                't4' => array(
                     'key' => 't4',
                     'value' => '全民健保',
                     'col' => '3',
-                    'row' => '1'
+                    'row' => '1',
+                    'style' => array(),
+                    'class' => '',
+                    'default' => '',
+                    'list' => '',
                 )
             )
         );
@@ -716,148 +821,149 @@ class AddInsConfig
             'config' => array(
                 'type' => 'title',
                 'name' => 'title2',
-                'style' => 'title2'
+                'style' => array(),
+                'class' => 'title2'
             ),
             'defined' => array(
-                array(
+                'u_no' => array(
                     'key' => 'u_no',
                     'value' => '員工編號',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'c_name' => array(
                     'key' => 'c_name',
                     'value' => '姓名',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'id_no' => array(
                     'key' => 'id_no',
                     'value' => '身分證字號',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'birthday' => array(
                     'key' => 'birthday',
                     'value' => '出生年月日',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'u_country' => array(
                     'key' => 'u_country',
                     'value' => '國別',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'iu_sn' => array(
                     'key' => 'iu_sn',
                     'value' => '投保單位',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'add_date' => array(
                     'key' => 'add_date',
                     'value' => '加保日期',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'start_date' => array(
                     'key' => 'start_date',
                     'value' => '生效日期',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'ins_status' => array(
                     'key' => 'ins_status',
                     'value' => '保險身分',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'disability_level' => array(
                     'key' => 'disability_level',
                     'value' => '身心障礙等級',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'ins_salary' => array(
                     'key' => 'ins_salary',
                     'value' => '月投保薪資',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'remark' => array(
                     'key' => 'remark',
                     'value' => '備註',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'assured_category' => array(
                     'key' => 'assured_category',
                     'value' => '勞保被保險人類別',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'labor_salary' => array(
                     'key' => 'labor_salary',
                     'value' => '勞保月投保薪資',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'labor_insurance_1' => array(
                     'key' => 'labor_insurance_1',
                     'value' => '參加普通事故保險費',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'labor_insurance_2' => array(
                     'key' => 'labor_insurance_2',
                     'value' => '參加職災保險',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'emp_insurance' => array(
                     'key' => 'emp_insurance',
                     'value' => '參加就業保險',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'labor_retir_system' => array(
                     'key' => 'labor_retir_system',
                     'value' => '勞退制度',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'labor_retir_salary' => array(
                     'key' => 'labor_retir_salary',
                     'value' => '勞退月提繳工資',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'com_withhold_rate' => array(
                     'key' => 'com_withhold_rate',
                     'value' => '公司提繳率',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'emp_withhold_rate' => array(
                     'key' => 'emp_withhold_rate',
                     'value' => '個人提繳率',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'ins_category' => array(
                     'key' => 'ins_category',
                     'value' => '健保投保類別',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'heal_ins_salary' => array(
                     'key' => 'heal_ins_salary',
                     'value' => '健保投保工資',
                     'col' => '1',
                     'row' => '1'
                 ),
-                array(
+                'subsidy_eligibility' => array(
                     'key' => 'subsidy_eligibility',
                     'value' => '補助資格',
                     'col' => '1',
@@ -869,32 +975,32 @@ class AddInsConfig
         // 範例
         $example = self::$_title[1];
         $example['config']['name'] = 'example';
-        $example['config']['style'] = 'example';
-        $count = - 1;
-        $example['defined'][++ $count]['value'] = '範例列請勿刪除';
-        $example['defined'][++ $count]['value'] = '';
-        $example['defined'][++ $count]['value'] = '';
-        $example['defined'][++ $count]['value'] = '1980/01/01';
-        $example['defined'][++ $count]['value'] = '填入國別代碼兩碼如TW';
-        $example['defined'][++ $count]['value'] = '';
-        $example['defined'][++ $count]['value'] = '1980/01/01';
-        $example['defined'][++ $count]['value'] = '1980/01/01';
-        $example['defined'][++ $count]['value'] = '員工 / 雇主';
-        $example['defined'][++ $count]['value'] = '請選擇';
-        $example['defined'][++ $count]['value'] = '請填入金額';
-        $example['defined'][++ $count]['value'] = '';
-        $example['defined'][++ $count]['value'] = '請選擇';
-        $example['defined'][++ $count]['value'] = '沒填系統自動帶合適級距';
-        $example['defined'][++ $count]['value'] = '預設是';
-        $example['defined'][++ $count]['value'] = '預設是';
-        $example['defined'][++ $count]['value'] = '預設是';
-        $example['defined'][++ $count]['value'] = '預設新制';
-        $example['defined'][++ $count]['value'] = '沒填系統自動帶合適級距';
-        $example['defined'][++ $count]['value'] = '%';
-        $example['defined'][++ $count]['value'] = '%';
-        $example['defined'][++ $count]['value'] = '請選擇';
-        $example['defined'][++ $count]['value'] = '沒填系統自動帶合適級距';
-        $example['defined'][++ $count]['value'] = '請選擇';
+        $example['config']['style'] = array();
+        $example['config']['class'] = 'example';
+        $example['defined']['u_no']['value'] = '範例列請勿刪除';
+        $example['defined']['c_name']['value'] = '';
+        $example['defined']['id_no']['value'] = '';
+        $example['defined']['birthday']['value'] = '1980/01/01';
+        $example['defined']['u_country']['value'] = '填入國別代碼兩碼如TW';
+        $example['defined']['iu_sn']['value'] = '';
+        $example['defined']['add_date']['value'] = '1980/01/01';
+        $example['defined']['start_date']['value'] = '1980/01/01';
+        $example['defined']['ins_status']['value'] = '員工 / 雇主';
+        $example['defined']['disability_level']['value'] = '請選擇';
+        $example['defined']['ins_salary']['value'] = '請填入金額';
+        $example['defined']['remark']['value'] = '';
+        $example['defined']['assured_category']['value'] = '請選擇';
+        $example['defined']['labor_salary']['value'] = '沒填系統自動帶合適級距';
+        $example['defined']['labor_insurance_1']['value'] = '預設是';
+        $example['defined']['labor_insurance_2']['value'] = '預設是';
+        $example['defined']['emp_insurance']['value'] = '預設是';
+        $example['defined']['labor_retir_system']['value'] = '預設新制';
+        $example['defined']['labor_retir_salary']['value'] = '沒填系統自動帶合適級距';
+        $example['defined']['com_withhold_rate']['value'] = '%';
+        $example['defined']['emp_withhold_rate']['value'] = '%';
+        $example['defined']['ins_category']['value'] = '請選擇';
+        $example['defined']['heal_ins_salary']['value'] = '沒填系統自動帶合適級距';
+        $example['defined']['subsidy_eligibility']['value'] = '請選擇';
         
         self::$_title[] = $example;
     }
@@ -910,6 +1016,14 @@ class AddInsConfig
         $content = self::$_title[1];
         $content['config']['type'] = 'content';
         $content['config']['name'] = 'content';
+        $content['config']['style'] = array();
+        $content['config']['class'] = 'content';
+        $content['defined']['u_no']['style'] = array('background-color' => 'FFDBDCDC');
+        $content['defined']['c_name']['style'] = array('background-color' => 'FFDBDCDC');
+        $content['defined']['ins_salary']['style'] = array('format' => 'number');
+        $content['defined']['labor_salary']['style'] = array('format' => 'number');
+        $content['defined']['labor_retir_salary']['style'] = array('format' => 'number');
+        $content['defined']['heal_ins_salary']['style'] = array('format' => 'number');
         self::$_content = $content;
     }
 
