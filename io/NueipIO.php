@@ -1,5 +1,5 @@
 <?php
-namespace app\libraries\io2;
+namespace app\libraries\io;
 
 /**
  * NuEIP IO Library
@@ -124,7 +124,7 @@ class NueipIO
      */
     public function setConfig($config)
     {
-        $this->_config = \app\libraries\io2\ConfigFactory::get($config);
+        $this->_config = \app\libraries\io\ConfigFactory::get($config);
         return $this;
     }
     
@@ -135,7 +135,7 @@ class NueipIO
      */
     public function setStyle($style = 'Nueip')
     {
-        $this->_style = \app\libraries\io2\StyleFactory::get($style);
+        $this->_style = \app\libraries\io\StyleFactory::get($style);
         return $this;
     }
     
@@ -157,7 +157,7 @@ class NueipIO
      */
     public function setBuilder($builder = 'excel')
     {
-        $this->_builder = \app\libraries\io2\BuilderFactory::get($builder);
+        $this->_builder = \app\libraries\io\BuilderFactory::get($builder);
         return $this;
     }
     

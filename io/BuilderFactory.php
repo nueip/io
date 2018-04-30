@@ -1,13 +1,13 @@
 <?php
-namespace app\libraries\io2;
+namespace app\libraries\io;
 
 /**
  * NuEIP IO Library
  *
- * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-23
+ * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
  *        
  */
-class StyleFactory
+class BuilderFactory
 {
     
     /**
@@ -40,7 +40,8 @@ class StyleFactory
      */
     public static function get($name)
     {
-        $class = '\\'.__NAMESPACE__.'\\style\\'.$name.'Style';
+        // 初炲化建構物件
+        $class = '\\'.__NAMESPACE__.'\\builder\\'.$name.'Builder';
         return new $class();
     }
 }

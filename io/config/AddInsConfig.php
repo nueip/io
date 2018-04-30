@@ -1,5 +1,5 @@
 <?php
-namespace app\libraries\io2\config;
+namespace app\libraries\io\config;
 
 /**
  * NuEIP IO Add Insurance Config
@@ -290,7 +290,7 @@ class AddInsConfig
      * 整併原始資料後，如需要多餘資料執行額外處理，可在處理完後再執行內容過濾 self::contentFilter($data);
      * 
      * @param array $data 原始資料內容
-     * @return \app\libraries\io2\config\AddInsConfig
+     * @return \app\libraries\io\config\AddInsConfig
      */
     public static function contentRefactor(Array & $data)
     {
@@ -319,7 +319,7 @@ class AddInsConfig
      * 將不需要的多餘資料濾除，通常處理self::contentRefactor($data)整併完的內容
      * 
      * @param array $data 原始資料內容
-     * @return \app\libraries\io2\config\AddInsConfig
+     * @return \app\libraries\io\config\AddInsConfig
      */
     public static function contentFilter(Array & $data)
     {

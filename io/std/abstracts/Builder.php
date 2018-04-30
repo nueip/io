@@ -1,5 +1,5 @@
 <?php
-namespace app\libraries\io2\std\abstracts;
+namespace app\libraries\io\std\abstracts;
 
 /**
  * NuEIP IO Library abstract

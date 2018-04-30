@@ -4,7 +4,7 @@
  */
 
 
-namespace app\libraries\io2\style;
+namespace app\libraries\io\style;
 
 /**
  * NuEIP IO Sheet Library

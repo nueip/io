@@ -1,5 +1,5 @@
 <?php
-namespace app\libraries\io2\builder;
+namespace app\libraries\io\builder;
 
 /**
  * NuEIP IO Library

@@ -1,5 +1,5 @@
 <?php
-namespace app\libraries\io2\builder;
+namespace app\libraries\io\builder;
 
 /**
  * NuEIP IO Library
@@ -291,22 +291,22 @@ class ExcelBuilder
         // 建立Excel樣式 - 預設樣式
         $defaultStyle = $this->_style->getDefault();
         $sheetRange = $this->offsetMap('sheet');
-        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelDefaultStyle($defaultStyle, $spreadsheet);
+        \app\libraries\io\builder\ExcelStyleBuilder::setExcelDefaultStyle($defaultStyle, $spreadsheet);
         
         // 建立Excel樣式 - 標題樣式
         $titleStyle = $this->_style->getTitle();
         $titleRange = $this->offsetMap('title');
-        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($titleStyle, $spreadsheet, $titleRange);
+        \app\libraries\io\builder\ExcelStyleBuilder::setExcelRangeStyle($titleStyle, $spreadsheet, $titleRange);
         
         // 建立Excel樣式 - 內容樣式
         $contentStyle = $this->_style->getContent();
         $contentRange = $this->offsetMap('content');
-        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($contentStyle, $spreadsheet, $contentRange);
+        \app\libraries\io\builder\ExcelStyleBuilder::setExcelRangeStyle($contentStyle, $spreadsheet, $contentRange);
         
         // 建立Excel樣式 - 結尾樣式
         $footStyle = $this->_style->getFoot();
         $footRange = $this->offsetMap('foot');
-        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($footStyle, $spreadsheet, $footRange);
+        \app\libraries\io\builder\ExcelStyleBuilder::setExcelRangeStyle($footStyle, $spreadsheet, $footRange);
         // ======
         
         // ====== 建立樣式-從Config ======
@@ -337,7 +337,7 @@ class ExcelBuilder
             $contentRange = $this->offsetMap('content', 'rowStart');
             $freezeCell = $freezeCol.$contentRange;
             // 凍結欄位
-            \app\libraries\io2\builder\ExcelStyleBuilder::setFreeze($freezeCell, $spreadsheet);
+            \app\libraries\io\builder\ExcelStyleBuilder::setFreeze($freezeCell, $spreadsheet);
         }
         // ======
     }
@@ -525,10 +525,10 @@ class ExcelBuilder
         $class = $this->_style->getClass($className);
         
         // 設定style樣式
-        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($style, $spreadsheet, $blockRange);
+        \app\libraries\io\builder\ExcelStyleBuilder::setExcelRangeStyle($style, $spreadsheet, $blockRange);
         
         // 設定Class樣式
-        \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
+        \app\libraries\io\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
         
         // === 欄位 ===
         foreach ($config['defined'] as $idx => $conf) {
@@ -547,10 +547,10 @@ class ExcelBuilder
             $class = $this->_style->getClass($className);
             
             // 設定style樣式
-            \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($style, $spreadsheet, $blockRange);
+            \app\libraries\io\builder\ExcelStyleBuilder::setExcelRangeStyle($style, $spreadsheet, $blockRange);
             
             // 設定Class樣式
-            \app\libraries\io2\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
+            \app\libraries\io\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
         }
     }
     
