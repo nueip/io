@@ -11,6 +11,14 @@ class ExcelBuilder
 {
     
     /**
+     * 預設參數
+     * @var array
+     */
+    protected $_options = array(
+        'fileName' => 'export'
+    );
+    
+    /**
      * 資料
      *
      * @var array
@@ -87,6 +95,18 @@ class ExcelBuilder
      */
     
     /**
+     * 載入參數
+     *
+     * @param array $options
+     *            參數
+     */
+    public function setOptions(Array $options)
+    {
+        $this->_options = $options;
+        return $this;
+    }
+    
+    /**
      * 載入資料
      *
      * @param string $data
@@ -137,10 +157,12 @@ class ExcelBuilder
         return $this;
     }
 
+    /**
+     * 建構資料
+     * @return \app\libraries\io\builder\ExcelBuilder
+     */
     public function build()
     {
-        getRunTime();
-        
         // 標題建構
         $this->titleBuilder();
         
@@ -156,16 +178,19 @@ class ExcelBuilder
         // 下拉選單建構
         $this->listBuilder();
         
-//         echo getRunTime();
-//         exit;
-        
         return $this;
     }
 
-    public function output()
+    /**
+     * 輸出資料
+     * @param unknown $name
+     */
+    public function output($name = '')
     {
+        $name = ($name) ? $name : $this->_options['fileName'];
+        
         $this->_builder->setSheet(0);
-        $this->_builder->output();
+        $this->_builder->output($name);
     }
 
     /**
@@ -191,7 +216,10 @@ class ExcelBuilder
         $rowEnd = '0';
         
         // 建構標題資料
-        foreach ($this->_config->title() as $key => $tRow) {
+        foreach ($this->_config->getTitle() as $key => $tRow) {
+            // 設定資料過濾，在喂給helper時不會有多餘的資料
+            $this->_config->definedFilter($tRow);
+            
             // 寫入標題資料至excel
             $this->_builder->addRows([$tRow['defined']]);
             
@@ -216,7 +244,7 @@ class ExcelBuilder
         $this->_rebuildContent();
         
         // 取得定義資料
-        $content = $this->_config->content();
+        $content = $this->_config->getContent();
         
         // 起始座標
         $colStart = 'A';
@@ -225,7 +253,6 @@ class ExcelBuilder
         // 結束座標 - 初始化
         $colEnd = 'A';
         $rowEnd = '0';
-        
         
         // 建構內容資料
         $this->_builder->addRows($this->_data);
@@ -254,7 +281,10 @@ class ExcelBuilder
         $rowEnd = '0';
         
         // 建構標題資料
-        foreach ($this->_config->foot() as $key => $fRow) {
+        foreach ($this->_config->getFoot() as $key => $fRow) {
+            // 設定資料過濾，在喂給helper時不會有多餘的資料
+            $this->_config->definedFilter($fRow);
+            
             // 寫入標題資料至excel
             $this->_builder->addRows([$fRow['defined']]);
             
@@ -311,19 +341,19 @@ class ExcelBuilder
         
         // ====== 建立樣式-從Config ======
         // === 標題設定 ===
-        $config = $this->_config->title();
+        $config = $this->_config->getTitle();
         foreach ($config as $idx => $conf) {
             // 樣式建構Style - 從Config
             $this->_configStyleBuilder($conf, $spreadsheet);
         }
         
         // === 內容設定 ===
-        $config = $this->_config->content();
+        $config = $this->_config->getContent();
         // 樣式建構Style - 從Config
         $this->_configStyleBuilder($config, $spreadsheet);
         
         // === 結尾設定 ===
-        $config = $this->_config->foot();
+        $config = $this->_config->getFoot();
         foreach ($config as $idx => $conf) {
             // 樣式建構Style - 從Config
             $this->_configStyleBuilder($conf, $spreadsheet);
@@ -480,9 +510,15 @@ class ExcelBuilder
      */
     protected function _rebuildContent()
     {
+        // 內容整併 - 以資料內容範本為模版合併資料 - 欄位、排序、預設值、資料轉換
+        $this->_config->contentRefactor($this->_data)->contentFilter($this->_data);
+        
         // 取得定義資料
-        $content = $this->_config->content();
+        $content = $this->_config->getContent();
         $cDefined = $content['defined'];
+        
+        // 設定資料過濾，在喂給helper時不會有多餘的資料
+        $this->_config->definedFilter($cDefined);
         
         // 重建索引 - 依Key
         \nueip\helpers\ArrayHelper::indexBy($cDefined, 'key');
@@ -578,7 +614,7 @@ class ExcelBuilder
         $listMap = $this->_listMap;
         
         // 取得內容定義資料
-        $content = $this->_config->content();
+        $content = $this->_config->getContent();
         $cDefined = array_column($content['defined'], 'value', 'key');
         
         // 遍歷資料範本 - 建構下拉選單值的資料表，並繫結到目標欄位

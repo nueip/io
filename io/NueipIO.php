@@ -4,11 +4,31 @@ namespace app\libraries\io;
 /**
  * NuEIP IO Library
  *
+ * @example 
+ *          $this->load->library('tw_ins_management/Tw_ins_management_component');
+ *         
+ *          // get all data
+ *          $data = $this->tw_ins_management_component->empList([
+ *          'select_type' => 'all',
+ *          'iu_sn' => ''
+ *          ]);
+ *         
+ *          $io = new \app\libraries\io\NueipIO();
+ *          $io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Nueip');
+ *         
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
  *        
  */
 class NueipIO
 {
+    /**
+     * 預設參數
+     * @var array
+     */
+    protected $_options = array(
+        'fileName' => 'export'
+    );
+    
     /**
      * 資料
      * @var array
@@ -45,9 +65,11 @@ class NueipIO
      *
      * @throws Exception
      */
-    public function __construct()
+    public function __construct(Array $options = array())
     {
-        // 初始化
+        // 初始化參數
+        $this->_options = array_intersect_key(array_merge($this->_options, $options), $this->_options);
+        
     }
 
     /**
@@ -67,8 +89,6 @@ class NueipIO
      */
     public function export($data, $config, $builder = 'Excel', $style = 'Nueip')
     {
-        // 建立io物件
-        
         // 載入資料
         $this->setData($data);
         
@@ -88,7 +108,7 @@ class NueipIO
     /**
      * 匯入
      */
-    public function import()
+    public function import($config, $builder = 'Excel')
     {
         // 取得上傳資料 - 上傳檔轉資料陣列
         $row = $this->uploadFile2Row();
@@ -104,6 +124,19 @@ class NueipIO
         
         // 取得資料陣列
         return $this->_builder->output();
+    }
+    
+    /**
+     * 參數設定
+     *
+     * @param string $opName 參數名稱
+     * @param string $opValue 參數值
+     * @return \app\libraries\io\NueipIO
+     */
+    public function setOption($opName, $opValue)
+    {
+        $this->_options[$opName] = $opValue;
+        return $this;
     }
     
     /**
@@ -180,13 +213,21 @@ class NueipIO
      */
     public function buildExport()
     {
+        // 載入參數
+        $this->_builder->setOptions($this->_options);
+        // 載入資料
         $this->_builder->setData($this->_data);
+        // 載入結構定義
         $this->_builder->setConfig($this->_config);
+        // 載入樣式定義
         $this->_builder->setStyle($this->_style);
+        
+        // 載入下拉選單定義 - 額外定義資料
         foreach ($this->_listMap as $keyName => $listDEfined) {
             $this->_builder->setList($keyName, $listDEfined);
         }
         
+        // 建構資料 & 輸出
         $this->_builder->build()->output();
     }
     

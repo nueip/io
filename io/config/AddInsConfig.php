@@ -3,105 +3,28 @@ namespace app\libraries\io\config;
 
 /**
  * NuEIP IO Add Insurance Config
- * 
+ *
  * 單一工作表版本
- * 
+ *
  * 優化：
  * 1. 動態標題，需
- * 
+ *
  * 注意：
  * 對建表建構因需要外連SQL，所以為避免第一次使用時還沒建構完成，建議使用建構實例的方式：new AddInsConfig()
- * 
- * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
  *
+ * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
+ *        
  */
-class AddInsConfig
+class AddInsConfig extends \app\libraries\io\config\abstracts\Config
 {
+    
+    /**
+     * 設定檔版號
+     *
+     * @var number
+     */
+    protected static $_version = 0.1;
 
-    private static $isInited = false;
-    
-    /**
-     * CodeIgniter Instance
-     * 
-     * @var object
-     */
-    private static $CI;
-    
-    /**
-     * 標題定義
-     *
-     * @var array
-     */
-    public static $_title = array();
-
-    /**
-     * 內容定義
-     *
-     * @var array
-     */
-    private static $_content = array();
-
-    /**
-     * 結尾定義
-     *
-     * @var array
-     */
-    private static $_foot = array();
-    
-    /**
-     * 對映表儲存表 - 下拉選單用
-     *
-     * $_listMap['目標鍵名'] = array(
-     * array(
-     * 'value' => '數值',
-     * 'text' => '數值名稱',
-     * ),
-     * );
-     *
-     * @var array
-     */
-    private static $_listMap = array();
-    
-    /**
-     * 暫存用數
-     * @var array
-     */
-    private static $_cache = array();
-    
-    /**
-     * 資料範本 - 鍵值表及預設值
-     * 
-     * 如需動態設定預設值時，需取出本表修改後回寫
-     * 
-     * @var array
-     */
-    private static $_dataTemplate = array (
-        'u_no' => '',
-        'c_name' => '',
-        'id_no' => '',
-        'birthday' => '',
-        'u_country' => '',
-        'iu_sn' => '',
-        'add_date' => '',
-        'start_date' => '',
-        'ins_status' => '1',
-        'disability_level' => '0',
-        'ins_salary' => '',
-        'remark' => '',
-        'assured_category' => '494',
-        'labor_salary' => '',
-        'labor_insurance_1' => '1',
-        'labor_insurance_2' => '1',
-        'emp_insurance' => '1',
-        'labor_retir_system' => '1',
-        'labor_retir_salary' => '',
-        'com_withhold_rate' => '0',
-        'emp_withhold_rate' => '0',
-        'ins_category' => '443',
-        'heal_ins_salary' => '',
-        'subsidy_eligibility' => '0',
-    );
-    
     /**
      * Construct
      *
@@ -109,175 +32,9 @@ class AddInsConfig
      */
     public function __construct()
     {
-        // 初始化
-        self::initialize();
+        parent::__construct();
     }
-    
-    /**
-     * Destruct
-     */
-    public function __destruct()
-    {}
-    
-    
-    /**
-     * 重新初始化
-     */
-    public function reInitialize()
-    {
-        self::$isInited = false;
-        self::initialize();
-    }
-    
-    /**
-     * 初始化
-     */
-    public function initialize()
-    {
-        // 檢查是否初始化 - 不重複初始化
-        if (self::$isInited) {
-            return true;
-        }
-        // 變更檢查旗標
-        self::$isInited = true;
-        
-        // ====== 初始化CI物件 ======
-        self::$CI = & get_instance();
-        
-        // ====== 初始化定義 ======
-        self::$_title = array();
-        self::$_content = array();
-        self::$_foot = array();
-        
-        self::titleDefined();
-        self::contentDefined();
-        self::footDefined();
-        // ======
-        
-        // ====== 初始化對映表 ======
-        self::$_listMap = array();
-        // 對映表建構 - 國別 - u_country
-        self::countryMapBuilder();
-        // 對映表建構 - 投保單位 - iu_sn
-        self::insUnitMapBuilder();
-        // 對映表建構 - 保險身份 - ins_status
-        self::insStatusMapBuilder();
-        // 對映表建構 - 身心障礙等級 - disability_level
-        self::disabilityMapBuilder();
-        // 對映表建構 - 被保險人類別 - assured_category
-        self::assuredMapBuilder();
-        // 對映表建構 - 保險是否參加答案 - labor_insurance_1,labor_insurance_2,emp_insurance
-        self::insuranceJoinAnserMapBuilder();
-        // 對映表建構 - 制度 - labor_retir_system
-        self::retirSystemMapBuilder();
-        // 對映表建構 - 投保類別 - ins_category
-        self::insCategoryMapBuilder();
-        // 對映表建構 - 本人符合補助資格 - subsidy_eligibility
-        self::subsidyMapBuilder();
-        // 對映表建構 - 級距 - 勞保、勞退、健保
-        self::levelMapBuilder();
-        // ======
-        
-        return true;
-    }
-    
-    /**
-     * **********************************************
-     * ************** Setting Function **************
-     * **********************************************
-     */
-    
-    /**
-     * 標題定義 - 取得/設定
-     * 
-     * 取得：無參數時
-     * 設定：有參數時
-     * 
-     * @return array
-     */
-    public static function title($data = null)
-    {
-        if (!is_null($data)) {
-            self::$_title = $data;
-        } elseif (empty(self::$_title)) {
-            self::titleDefined();
-        }
-        
-        return self::$_title;
-    }
-    
-    /**
-     * 內容定義 - 取得/設定
-     * 
-     * 取得：無參數時
-     * 設定：有參數時
-     * 
-     * @return array
-     */
-    public static function content($data = null)
-    {
-        if (!is_null($data)) {
-            self::$_content = $data;
-        } elseif (empty(self::$_content)) {
-            self::contentDefined();
-        }
-        
-        return self::$_content;
-    }
-    
-    /**
-     * 結尾定義 - 取得/設定
-     * 
-     * 取得：無參數時
-     * 設定：有參數時
-     * 
-     * @return array
-     */
-    public static function foot($data = null)
-    {
-        if (!is_null($data)) {
-            self::$_foot = $data;
-        } elseif (empty(self::$_foot)) {
-            self::footDefined();
-        }
-        
-        return self::$_foot;
-    }
-    
-    /**
-     * 資料範本 - 鍵值表及預設值 - 取得/設定
-     *
-     * 如需動態設定預設值時，需取出本表修改後回寫
-     *
-     * 取得：無參數時
-     * 設定：有參數時
-     *
-     * @return array
-     */
-    public static function dataTemplate($data = null)
-    {
-        if (!is_null($data)) {
-            self::$_dataTemplate = $data;
-        }
-        
-        return self::$_dataTemplate;
-    }
-    
-    /**
-     * 資料範本 - 鍵值表及預設值 - 取得/設定
-     *
-     * 如需動態設定預設值時，需取出本表修改後回寫
-     *
-     * 取得：無參數時
-     * 設定：有參數時
-     *
-     * @return array
-     */
-    public static function getList()
-    {
-        return self::$_listMap;
-    }
-    
+
     /**
      * ******************************************************
      * ************** Content Process Function **************
@@ -285,81 +42,14 @@ class AddInsConfig
      */
     
     /**
-     * 內容整併 - 以資料內容範本為模版合併資料
-     * 
-     * 整併原始資料後，如需要多餘資料執行額外處理，可在處理完後再執行內容過濾 self::contentFilter($data);
-     * 
-     * @param array $data 原始資料內容
-     * @return \app\libraries\io\config\AddInsConfig
-     */
-    public static function contentRefactor(Array & $data)
-    {
-        // 將現有對映表轉成value=>text格式存入暫存
-        self::value2TextMapBuilder();
-        
-        foreach ($data as $key => &$row) {
-            $row = (array)$row;
-            
-            // 以資料內容範本為模版合併資料
-            $row = array_merge(self::$_dataTemplate, $row);
-            
-            // 內容整併處理時執行 - 迴圈內自定步驟
-            self::onRefactor($key, $row);
-            
-            // 執行資料轉換 value => text
-            self::value2Text($key, $row);
-        }
-        
-        return new static();
-    }
-    
-    /**
-     * 內容過濾 - 以資料內容範本為模版過濾多餘資料
-     * 
-     * 將不需要的多餘資料濾除，通常處理self::contentRefactor($data)整併完的內容
-     * 
-     * @param array $data 原始資料內容
-     * @return \app\libraries\io\config\AddInsConfig
-     */
-    public static function contentFilter(Array & $data)
-    {
-        foreach ($data as $key => &$row) {
-            $row = (array)$row;
-            
-            // 以資料內容範本為模版過濾多餘資料
-            $row = array_intersect_key($row, self::$_dataTemplate);
-        }
-        
-        return new static();
-    }
-    
-    /**
-     * 執行資料轉換 value => text
-     *
-     * @param string $key 當次迴圈的Key值
-     * @param array $row 當次迴圈的內容
-     */
-    public static function value2Text($key, &$row)
-    {
-        // 遍歷資料，並轉換內容
-        foreach ($row as $k => &$v) {
-            // 檢查是否需要內容轉換
-            if (!isset(self::$_cache['value2Text'][$k])) {
-                continue;
-            }
-            
-            // 處理資料轉換
-            $v = isset(self::$_cache['value2Text'][$k][$v]) ? self::$_cache['value2Text'][$k][$v] : '';
-        }
-    }
-    
-    /**
      * 內容整併處理時執行 - 迴圈內自定步驟
      *
-     * @param string $key 當次迴圈的Key值
-     * @param array $row 當次迴圈的內容
+     * @param string $key
+     *            當次迴圈的Key值
+     * @param array $row
+     *            當次迴圈的內容
      */
-    public static function onRefactor($key, &$row)
+    protected function eachRefactor($key, &$row)
     {
         // 設定加保日期
         if (isset($row['arrive_date'])) {
@@ -367,18 +57,10 @@ class AddInsConfig
         }
         
         // 設定投保單位 - 預設第一個投保單位
-        $row['iu_sn'] = key(self::$_listMap['rate_company']);
+        $row['iu_sn'] = key($this->_listMap['rate_company']);
         // 設定公司提繳率 - 預設第一個投保單位 - 因為無法聯動公司選項來變更提繳率
-        $row['com_withhold_rate'] = current(self::$_listMap['rate_company']);
+        $row['com_withhold_rate'] = current($this->_listMap['rate_company']);
     }
-    
-    /**
-     * ******************************************
-     * ************** Map Function **************
-     * ******************************************
-     */
-    
-    
     
     /**
      * **************************************************
@@ -387,64 +69,65 @@ class AddInsConfig
      */
     
     /**
-     * 將現有對映表轉成value=>text格式存入暫存
+     * 初始化對映表
      */
-    public static function value2TextMapBuilder()
+    protected function listMapInitialize()
     {
-        // 初始化暫存
-        self::$_cache['value2Text'] = array();
-        
-        foreach (self::$_listMap as $key => $map) {
-            self::$_cache['value2Text'][$key] = array_column($map, 'text', 'value');
-        }
+        // 對映表建構 - 國別 - u_country
+        $this->countryMapBuilder();
+        // 對映表建構 - 投保單位 - iu_sn
+        $this->insUnitMapBuilder();
+        // 對映表建構 - 保險身份 - ins_status
+        $this->insStatusMapBuilder();
+        // 對映表建構 - 身心障礙等級 - disability_level
+        $this->disabilityMapBuilder();
+        // 對映表建構 - 被保險人類別 - assured_category
+        $this->assuredMapBuilder();
+        // 對映表建構 - 保險是否參加答案 - labor_insurance_1,labor_insurance_2,emp_insurance
+        $this->insuranceJoinAnserMapBuilder();
+        // 對映表建構 - 制度 - labor_retir_system
+        $this->retirSystemMapBuilder();
+        // 對映表建構 - 投保類別 - ins_category
+        $this->insCategoryMapBuilder();
+        // 對映表建構 - 本人符合補助資格 - subsidy_eligibility
+        $this->subsidyMapBuilder();
+        // 對映表建構 - 級距 - 勞保、勞退、健保
+        $this->levelMapBuilder();
     }
-    
-    /**
-     * 將現有對映表轉成text=>value格式存入暫存
-     */
-    public static function text2ValueMapBuilder()
-    {
-        // 初始化暫存
-        self::$_cache['text2Value'] = array();
-        
-        foreach (self::$_listMap as $key => $map) {
-            self::$_cache['text2Value'][$key] = array_column($map, 'value', 'text');
-        }
-    }
-    
+
     /**
      * 對映表建構 - 國別 - u_country
      */
-    public static function countryMapBuilder()
+    protected function countryMapBuilder()
     {
         // 取得國家代碼表
-        self::$CI->load->library('Ins_data_component');
-        $cData = self::$CI->ins_data_component->countryCodeData();
+        $this->CI->load->library('Ins_data_component');
+        $cData = $this->CI->ins_data_component->countryCodeData();
         
         // 資料整理
         $data = array();
         foreach ($cData as $k => $v) {
             $data[] = array(
                 'value' => $v['s_sn'],
-                'text' => $v['value_1'],
+                'text' => $v['value_1']
             );
         }
         
         // 寫入對映表
-        self::$_listMap['u_country'] = $data;
+        $this->_listMap['u_country'] = $data;
     }
-    
+
     /**
      * 對映表建構 - 投保單位 & 公司扣繳率 - iu_sn
      */
-    public static function insUnitMapBuilder()
+    protected function insUnitMapBuilder()
     {
         // 取得投保單位
-        self::$CI->load->model('Ins_setting_tw_model');
-        $insUnit = self::$CI->Ins_setting_tw_model->find()
-        ->select('s_sn,c_name,rate_company')
-        ->get()
-        ->result_array();
+        $this->CI->load->model('Ins_setting_tw_model');
+        $insUnit = $this->CI->Ins_setting_tw_model->find()
+            ->select('s_sn,c_name,rate_company')
+            ->get()
+            ->result_array();
         
         // 資料整理
         $data = array();
@@ -452,161 +135,161 @@ class AddInsConfig
         foreach ($insUnit as $k => $v) {
             $data[] = array(
                 'value' => $v['s_sn'],
-                'text' => $v['c_name'],
+                'text' => $v['c_name']
             );
             $rData[$v['s_sn']] = $v['rate_company'] - 0;
         }
         
         // 寫入對映表
-        self::$_listMap['iu_sn'] = $data;
-        self::$_listMap['rate_company'] = $rData;
+        $this->_listMap['iu_sn'] = $data;
+        $this->_listMap['rate_company'] = $rData;
     }
-    
+
     /**
      * 對映表建構 - 保險身份 - ins_status
      */
-    public static function insStatusMapBuilder()
+    protected function insStatusMapBuilder()
     {
         // 寫入對映表
-        self::$_listMap['ins_status'] = array(
+        $this->_listMap['ins_status'] = array(
             array(
                 'value' => '1',
-                'text' => '員工',
+                'text' => '員工'
             ),
             array(
                 'value' => '2',
-                'text' => '雇主',
-            ),
+                'text' => '雇主'
+            )
         );
     }
-    
+
     /**
      * 對映表建構 - 身心障礙等級 - disability_level
      */
-    public static function disabilityMapBuilder()
+    protected function disabilityMapBuilder()
     {
         // 取得規則資料
-        self::$CI->load->library('Ins_data_component');
-        $dData = self::$CI->ins_data_component->queryDetailByCode(4, 3, false, [
+        $this->CI->load->library('Ins_data_component');
+        $dData = $this->CI->ins_data_component->queryDetailByCode(4, 3, false, [
             'patch' => 1
         ])
-        ->select('s_sn,value_4')
-        ->order_by('s_sn', 'ASC')
-        ->get()
-        ->result_array();
+            ->select('s_sn,value_4')
+            ->order_by('s_sn', 'ASC')
+            ->get()
+            ->result_array();
         
         // 資料整理
         $data = array(
             array(
                 'value' => '0',
-                'text' => '無',
+                'text' => '無'
             )
         );
         // 增加選項 - 無
         foreach ($dData as $k => $v) {
             $data[] = array(
                 'value' => $v['s_sn'],
-                'text' => $v['value_4'],
+                'text' => $v['value_4']
             );
         }
         
         // 寫入對映表
-        self::$_listMap['disability_level'] = $data;
+        $this->_listMap['disability_level'] = $data;
     }
-    
+
     /**
      * 對映表建構 - 被保險人類別 - assured_category
      *
      * 批次加保為辨別哪些保險別不需加保，在 勞保被保險人類別、勞退制度、健保投保類別 三個選單的最後加上「不投保」選項
      */
-    public static function assuredMapBuilder()
+    protected function assuredMapBuilder()
     {
         // 取得規則資料
-        self::$CI->load->library('Ins_data_component');
-        $aData = $query = self::$CI->ins_data_component->queryDetailByCode(2, 1)
-        ->select('s_sn,value_4')
-        ->order_by('s_sn', 'ASC')
-        ->get()
-        ->result_array();
+        $this->CI->load->library('Ins_data_component');
+        $aData = $query = $this->CI->ins_data_component->queryDetailByCode(2, 1)
+            ->select('s_sn,value_4')
+            ->order_by('s_sn', 'ASC')
+            ->get()
+            ->result_array();
         
         // 資料整理
         $data = array();
         foreach ($aData as $k => $v) {
             $data[] = array(
                 'value' => $v['s_sn'],
-                'text' => $v['value_4'],
+                'text' => $v['value_4']
             );
         }
         
         // 增加不投保選項
         $data[] = array(
             'value' => '',
-            'text' => '不投保',
+            'text' => '不投保'
         );
         
         // 寫入對映表
-        self::$_listMap['assured_category'] = $data;
+        $this->_listMap['assured_category'] = $data;
     }
-    
+
     /**
      * 對映表建構 - 保險是否參加答案 - labor_insurance_1,labor_insurance_2,emp_insurance
      */
-    public static function insuranceJoinAnserMapBuilder()
+    protected function insuranceJoinAnserMapBuilder()
     {
-        self::$_listMap['labor_insurance_1'] = array(
+        $this->_listMap['labor_insurance_1'] = array(
             array(
                 'value' => '1',
-                'text' => '是',
+                'text' => '是'
             ),
             array(
                 'value' => '0',
-                'text' => '否',
-            ),
+                'text' => '否'
+            )
         );
         
-        self::$_listMap['labor_insurance_2'] = self::$_listMap['labor_insurance_1'];
+        $this->_listMap['labor_insurance_2'] = $this->_listMap['labor_insurance_1'];
         
-        self::$_listMap['emp_insurance'] = self::$_listMap['labor_insurance_1'];
+        $this->_listMap['emp_insurance'] = $this->_listMap['labor_insurance_1'];
     }
-    
+
     /**
      * 對映表建構 - 制度 - labor_retir_system
      *
      * 批次加保為辨別哪些保險別不需加保，在 勞保被保險人類別、勞退制度、健保投保類別 三個選單的最後加上「不投保」選項
      */
-    public static function retirSystemMapBuilder()
+    protected function retirSystemMapBuilder()
     {
         // 寫入對映表
-        self::$_listMap['labor_retir_system'] = array(
+        $this->_listMap['labor_retir_system'] = array(
             array(
                 'value' => '1',
-                'text' => '新制',
+                'text' => '新制'
             ),
             array(
                 'value' => '2',
-                'text' => '舊制',
+                'text' => '舊制'
             ),
             array(
                 'value' => '0',
-                'text' => '無須提繳',
+                'text' => '無須提繳'
             ),
             array(
                 'value' => '',
-                'text' => '不投保',
-            ),
+                'text' => '不投保'
+            )
         );
     }
-    
+
     /**
      * 對映表建構 - 投保類別 - ins_category
      *
      * 批次加保為辨別哪些保險別不需加保，在 勞保被保險人類別、勞退制度、健保投保類別 三個選單的最後加上「不投保」選項
      */
-    public static function insCategoryMapBuilder()
+    protected function insCategoryMapBuilder()
     {
         // 取得規則資料
-        self::$CI->load->library('Ins_data_component');
-        $nhiCategory = self::$CI->ins_data_component->getNhiCategoryByDateRange('0000-00-00', '9999-12-31', array(
+        $this->CI->load->library('Ins_data_component');
+        $nhiCategory = $this->CI->ins_data_component->getNhiCategoryByDateRange('0000-00-00', '9999-12-31', array(
             's_sn',
             'start_date',
             'end_date',
@@ -618,78 +301,78 @@ class AddInsConfig
         foreach ($nhiCategory as $k => $v) {
             $data[] = array(
                 'value' => $v['s_sn'],
-                'text' => $v['value_4'],
+                'text' => $v['value_4']
             );
         }
         
         // 增加選項-不投保
         $data[] = array(
             'value' => '',
-            'text' => '不投保',
+            'text' => '不投保'
         );
         
         // 寫入對映表
-        self::$_listMap['ins_category'] = $data;
+        $this->_listMap['ins_category'] = $data;
     }
-    
+
     /**
      * 對映表建構 - 本人符合補助資格 - subsidy_eligibility
      */
-    public static function subsidyMapBuilder()
+    protected function subsidyMapBuilder()
     {
         // 取得規則資料
-        self::$CI->load->library('Ins_data_component');
-        $nhiSubsidy = self::$CI->ins_data_component->queryDetailByCode(4, 13, false, [
+        $this->CI->load->library('Ins_data_component');
+        $nhiSubsidy = $this->CI->ins_data_component->queryDetailByCode(4, 13, false, [
             'patch' => 1
         ])
-        ->select('s_sn,value_4')
-        ->order_by('data_sort', 'ASC')
-        ->order_by('value_1', 'ASC')
-        ->get()
-        ->result_array();
+            ->select('s_sn,value_4')
+            ->order_by('data_sort', 'ASC')
+            ->order_by('value_1', 'ASC')
+            ->get()
+            ->result_array();
         
         // 資料整理
         $data = array(
             array(
                 'value' => '0',
-                'text' => '無',
+                'text' => '無'
             )
         );
         foreach ($nhiSubsidy as $k => $v) {
             $data[] = array(
                 'value' => $v['s_sn'],
-                'text' => $v['value_4'],
+                'text' => $v['value_4']
             );
         }
         
         // 寫入對映表
-        self::$_listMap['subsidy_eligibility'] = $data;
+        $this->_listMap['subsidy_eligibility'] = $data;
     }
-    
+
     /**
      * 對映表建構 - 級距 - 勞保、勞退、健保
-     * 
+     *
      * 需要有歷史表及目前生效表
      * 匯出時，使用目前生效表
      * 匯入時，需使用歷史表檢查
-     * 
+     *
      * @param date $dateRangeStart
      *            參考時間-起
      * @param date $dateRangeEnd
      *            參考時間-訖
      */
-    public static function levelMapBuilder($dateRangeStart = null, $dateRangeEnd = null)
+    protected function levelMapBuilder($dateRangeStart = null, $dateRangeEnd = null)
     {
-        self::$CI->load->library('tw_ins_management/Tw_ins_management_component');
-        self::$CI->load->library('Dbfunctions');
+        $this->CI->load->library('tw_ins_management/Tw_ins_management_component');
+        $this->CI->load->library('Dbfunctions');
         
         // 時間處理
-        $today = self::$CI->dbfunctions->getTime_zone('', 'Y-m-d');
+        $today = $this->CI->dbfunctions->getTime_zone('', 'Y-m-d');
         $dateRangeStart = is_null($dateRangeStart) ? $today : $dateRangeStart;
         $dateRangeEnd = is_null($dateRangeEnd) ? $today : $dateRangeEnd;
         
         // 對映表建構 - 勞保級距 - 使用參考日期區間
-        $data = self::$CI->tw_ins_level_adjust_component->laborLevelMapBuilder($dateRangeStart, $dateRangeEnd);
+        $data = $this->CI->tw_ins_level_adjust_component->laborLevelMapBuilder($dateRangeStart, $dateRangeEnd);
         // 資料整理
         $tData = array();
         $lastEffectDate = '0000-00-00';
@@ -697,19 +380,19 @@ class AddInsConfig
             foreach ($v as $lv => $vv) {
                 $tData[$date][] = array(
                     'value' => $lv,
-                    'text' => $lv,
+                    'text' => $lv
                 );
             }
             // 取得今日有效的規則日期
             $lastEffectDate = $date <= $today ? $date : $lastEffectDate;
         }
         // 總表
-        self::$_listMap['laborLevel'] = $tData;
+        $this->_listMap['laborLevel'] = $tData;
         // 目前生效的表
-        self::$_listMap['labor_salary'] = $tData[$lastEffectDate];
+        $this->_listMap['labor_salary'] = $tData[$lastEffectDate];
         
         // 對映表建構 - 勞退級距 - 使用參考日期區間
-        $data = self::$CI->tw_ins_level_adjust_component->pensionLevelMapBuilder($dateRangeStart, $dateRangeEnd);
+        $data = $this->CI->tw_ins_level_adjust_component->pensionLevelMapBuilder($dateRangeStart, $dateRangeEnd);
         // 資料整理
         $tData = array();
         $lastEffectDate = '0000-00-00';
@@ -717,19 +400,19 @@ class AddInsConfig
             foreach ($v as $lv => $vv) {
                 $tData[$date][] = array(
                     'value' => $lv,
-                    'text' => $lv,
+                    'text' => $lv
                 );
             }
             // 取得今日有效的規則日期
             $lastEffectDate = $date <= $today ? $date : $lastEffectDate;
         }
         // 總表
-        self::$_listMap['pensionLevel'] = $tData;
+        $this->_listMap['pensionLevel'] = $tData;
         // 目前生效的表
-        self::$_listMap['labor_retir_salary'] = $tData[$lastEffectDate];
+        $this->_listMap['labor_retir_salary'] = $tData[$lastEffectDate];
         
         // 對映表建構 - 健保級距 - 使用參考日期區間
-        $data = self::$CI->tw_ins_level_adjust_component->nhiLevelMapBuilder($dateRangeStart, $dateRangeEnd);
+        $data = $this->CI->tw_ins_level_adjust_component->nhiLevelMapBuilder($dateRangeStart, $dateRangeEnd);
         // 資料整理
         $tData = array();
         $lastEffectDate = '0000-00-00';
@@ -737,18 +420,18 @@ class AddInsConfig
             foreach ($v as $lv => $vv) {
                 $tData[$date][] = array(
                     'value' => $lv,
-                    'text' => $lv,
+                    'text' => $lv
                 );
             }
             // 取得今日有效的規則日期
             $lastEffectDate = $date <= $today ? $date : $lastEffectDate;
         }
         // 總表
-        self::$_listMap['nhiLevel'] = $tData;
+        $this->_listMap['nhiLevel'] = $tData;
         // 目前生效的表
-        self::$_listMap['heal_ins_salary'] = $tData[$lastEffectDate];
+        $this->_listMap['heal_ins_salary'] = $tData[$lastEffectDate];
     }
-    
+
     /**
      * **********************************************
      * ************** Defined Function **************
@@ -760,15 +443,17 @@ class AddInsConfig
      *
      * 單一標題定義可擁有單列資料，所以可定義多個標題定義
      */
-    private static function titleDefined()
+    protected function titleDefined()
     {
+        $title = array();
+        
         // 標題1
-        self::$_title[] = array(
+        $title[] = array(
             'config' => array(
                 'type' => 'title',
                 'name' => 'title1',
                 'style' => array(
-                    'font-size' => '16',
+                    'font-size' => '16'
                 ),
                 'class' => 'title1'
             ),
@@ -781,7 +466,7 @@ class AddInsConfig
                     'style' => array(),
                     'class' => '',
                     'default' => '',
-                    'list' => '',
+                    'list' => ''
                 ),
                 't2' => array(
                     'key' => 't2',
@@ -791,7 +476,7 @@ class AddInsConfig
                     'style' => array(),
                     'class' => '',
                     'default' => '',
-                    'list' => '',
+                    'list' => ''
                 ),
                 't3' => array(
                     'key' => 't3',
@@ -801,7 +486,7 @@ class AddInsConfig
                     'style' => array(),
                     'class' => '',
                     'default' => '',
-                    'list' => '',
+                    'list' => ''
                 ),
                 't4' => array(
                     'key' => 't4',
@@ -811,13 +496,13 @@ class AddInsConfig
                     'style' => array(),
                     'class' => '',
                     'default' => '',
-                    'list' => '',
+                    'list' => ''
                 )
             )
         );
         
         // 標題2
-        self::$_title[] = array(
+        $title[] = array(
             'config' => array(
                 'type' => 'title',
                 'name' => 'title2',
@@ -973,7 +658,7 @@ class AddInsConfig
         );
         
         // 範例
-        $example = self::$_title[1];
+        $example = $title[1];
         $example['config']['name'] = 'example';
         $example['config']['style'] = array();
         $example['config']['class'] = 'example';
@@ -1002,7 +687,10 @@ class AddInsConfig
         $example['defined']['heal_ins_salary']['value'] = '沒填系統自動帶合適級距';
         $example['defined']['subsidy_eligibility']['value'] = '請選擇';
         
-        self::$_title[] = $example;
+        $title[] = $example;
+        
+        // 設定標題定義
+        $this->setTitle($title);
     }
 
     /**
@@ -1010,21 +698,52 @@ class AddInsConfig
      *
      * 單一內容定義可擁有多列資料，所以只能有一個內容定義
      */
-    private static function contentDefined()
+    protected function contentDefined()
     {
+        $title = $this->getTitle();
+        
         // 內容
-        $content = self::$_title[1];
+        $content = $title[1];
         $content['config']['type'] = 'content';
         $content['config']['name'] = 'content';
         $content['config']['style'] = array();
         $content['config']['class'] = 'content';
-        $content['defined']['u_no']['style'] = array('background-color' => 'FFDBDCDC');
-        $content['defined']['c_name']['style'] = array('background-color' => 'FFDBDCDC');
-        $content['defined']['ins_salary']['style'] = array('format' => 'number');
-        $content['defined']['labor_salary']['style'] = array('format' => 'number');
-        $content['defined']['labor_retir_salary']['style'] = array('format' => 'number');
-        $content['defined']['heal_ins_salary']['style'] = array('format' => 'number');
-        self::$_content = $content;
+        // Style
+        $content['defined']['u_no']['style'] = array(
+            'background-color' => 'FFDBDCDC'
+        );
+        $content['defined']['c_name']['style'] = array(
+            'background-color' => 'FFDBDCDC'
+        );
+        $content['defined']['ins_salary']['style'] = array(
+            'format' => 'number'
+        );
+        $content['defined']['labor_salary']['style'] = array(
+            'format' => 'number'
+        );
+        $content['defined']['labor_retir_salary']['style'] = array(
+            'format' => 'number'
+        );
+        $content['defined']['heal_ins_salary']['style'] = array(
+            'format' => 'number'
+        );
+        
+        // Default
+        $content['defined']['ins_status']['default'] = '1';
+        $content['disability_level']['default'] = '0';
+        $content['assured_category']['default'] = '494';
+        $content['labor_insurance_1']['default'] = '1';
+        $content['labor_insurance_2']['default'] = '1';
+        $content['emp_insurance']['default'] = '1';
+        $content['labor_retir_system']['default'] = '1';
+        $content['labor_retir_salary']['default'] = '';
+        $content['com_withhold_rate']['default'] = '0';
+        $content['emp_withhold_rate']['default'] = '0';
+        $content['ins_category']['default'] = '443';
+        $content['subsidy_eligibility']['default'] = '0';
+        
+        // 設定內容定義
+        $this->setContent($content);
     }
 
     /**
@@ -1032,6 +751,11 @@ class AddInsConfig
      *
      * 單一結尾定義可擁有單列資料，所以可定義多個結尾定義
      */
-    private static function footDefined()
-    {}
+    protected function footDefined()
+    {
+        $foot = array();
+        
+        // 設定結尾定義
+        $this->setContent($foot);
+    }
 }
