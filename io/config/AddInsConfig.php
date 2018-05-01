@@ -17,13 +17,6 @@ namespace app\libraries\io\config;
  */
 class AddInsConfig extends \app\libraries\io\config\abstracts\Config
 {
-    
-    /**
-     * 設定檔版號
-     *
-     * @var number
-     */
-    protected static $_version = 0.1;
 
     /**
      * Construct
@@ -33,6 +26,16 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
     public function __construct()
     {
         parent::__construct();
+        
+        // 設定檔版號
+        $this->_options['version'] = '0.1';
+        // 設定檔名稱
+        $this->_options['configName'] = preg_replace('|Config$|', '', str_replace(array(
+            __NAMESPACE__,
+            '\\'
+        ), '', __CLASS__));
+        // 工作表名稱
+        $this->_options['sheetName'] = $this->_options['configName'];
     }
 
     /**
@@ -61,7 +64,7 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
         // 設定公司提繳率 - 預設第一個投保單位 - 因為無法聯動公司選項來變更提繳率
         $row['com_withhold_rate'] = current($this->_listMap['rate_company']);
     }
-    
+
     /**
      * **************************************************
      * ************** Map Builder Function **************

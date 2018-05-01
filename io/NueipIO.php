@@ -4,6 +4,8 @@ namespace app\libraries\io;
 /**
  * NuEIP IO Library
  *
+ * 單一工作表IO
+ *
  * @example 
  *          $this->load->library('tw_ins_management/Tw_ins_management_component');
  *         
@@ -101,7 +103,7 @@ class NueipIO
         // 載入Style定義
         $this->setStyle($style);
         
-        // 匯出
+        // 匯出建構並輸出
         $this->buildExport();
     }
 
@@ -111,7 +113,7 @@ class NueipIO
     public function import($config, $builder = 'Excel')
     {
         // 取得上傳資料 - 上傳檔轉資料陣列
-        $row = $this->uploadFile2Row();
+        $row = $this->uploadFile2Raw();
         
         // 載入資料
         $this->setData($row);
@@ -121,6 +123,10 @@ class NueipIO
         
         // 建立io物件
         $this->setBuilder($builder);
+        
+        // 匯入建構並回傳
+        $this->buildImport();
+        exit;
         
         // 取得資料陣列
         return $this->_builder->output();
@@ -209,7 +215,7 @@ class NueipIO
      */
     
     /**
-     * 建構並輸出
+     * 匯出建構並輸出
      */
     public function buildExport()
     {
@@ -232,6 +238,27 @@ class NueipIO
     }
     
     /**
+     * 匯入建構並回傳
+     */
+    public function buildImport()
+    {
+        // 載入參數
+        $this->_builder->setOptions($this->_options);
+        // 載入資料
+        $this->_builder->setData($this->_data);
+        // 載入結構定義
+        $this->_builder->setConfig($this->_config);
+        
+        // 載入下拉選單定義 - 額外定義資料
+        foreach ($this->_listMap as $keyName => $listDEfined) {
+            $this->_builder->setList($keyName, $listDEfined);
+        }
+        
+        // 建構資料 & 輸出
+        return $this->_builder->parse()->get();
+    }
+    
+    /**
      * **********************************************
      * ************** Private Function **************
      * **********************************************
@@ -243,7 +270,7 @@ class NueipIO
      * @throws Exception
      * @return array
      */
-    private function uploadFile2Row()
+    protected function uploadFile2Raw()
     {
         // 上傳路徑
         $UploadDir = 'uploads/tmp_files/';
@@ -274,14 +301,27 @@ class NueipIO
             $helper = \yidas\phpSpreadsheet\Helper::newSpreadsheet($uploadfile);
             unlink($uploadfile);
             
-            // 取得資料
+            // 取得原始資料
             while ($row = $helper->getRow()) {
                 $data[] = $row;
             }
+            
+            // 取得參數資料 - 設定檔參數
+            $helper->getSheet('ConfigSheet');
+            $config1 = $helper->getRow();
+            
+            // 取得參數資料 - 建構函式參數
+            $config2 = $helper->getRow();
+            
+            var_export($config1);
+            
+            exit;
         } else {
             throw new Exception('File Upload Failure !', 400);
         }
         
         return $data;
     }
+    
+    
 }

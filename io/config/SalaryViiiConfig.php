@@ -19,13 +19,6 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
 {
 
     /**
-     * 設定檔版號
-     *
-     * @var number
-     */
-    protected static $_version = 0.1;
-
-    /**
      * Construct
      *
      * @throws Exception
@@ -33,6 +26,16 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
     public function __construct()
     {
         parent::__construct();
+        
+        // 設定檔版號
+        $this->_options['version'] = '0.1';
+        // 設定檔名稱
+        $this->_options['configName'] = preg_replace('|Config$|', '', str_replace(array(
+            __NAMESPACE__,
+            '\\'
+        ), '', __CLASS__));
+        // 工作表名稱
+        $this->_options['sheetName'] = $this->_options['configName'];
     }
 
     /**

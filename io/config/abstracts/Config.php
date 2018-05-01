@@ -13,6 +13,18 @@ abstract class Config
 {
 
     /**
+     * 設定檔參數
+     * 
+     * @var array
+     */
+    protected $_options = array(
+        'abstractVersion' => '0.1',
+        'version' => '0.1',
+        'configName' => __CLASS__,
+        'sheetName' => 'Worksheet',
+    );
+
+    /**
      * CodeIgniter Instance
      *
      * @var object
@@ -72,6 +84,7 @@ abstract class Config
 
     /**
      * 喂給helper的欄位
+     * 
      * @var array
      */
     protected static $_helperField = array(
@@ -79,9 +92,9 @@ abstract class Config
         'value' => '',
         'col' => '1',
         'row' => '1',
-        'skip' => '1',
+        'skip' => '1'
     );
-    
+
     /**
      * Construct
      *
@@ -305,6 +318,65 @@ abstract class Config
     }
 
     /**
+     * **********************************************
+     * ************** Options Function **************
+     * **********************************************
+     */
+    
+    /**
+     * 設置設定檔參數 - 單一
+     */
+    public function setOption($optionName, $option)
+    {
+        $this->_options[$optionName] = $option;
+        
+        return $this;
+    }
+    
+    /**
+     * 設置設定檔參數 - 全部
+     */
+    public function setOptions(Array $options)
+    {
+        $this->_options = $options;
+        
+        return $this;
+    }
+    
+    /**
+     * 取得設定檔參數 - 單一
+     *
+     * @return array
+     */
+    public function getOption($optionName)
+    {
+        if (!isset($this->_options[$optionName])) {
+            throw new \Exception('Donot have option: '.$optionName.' !', 404);
+        }
+        
+        return $this->_options[$optionName];
+    }
+    
+    /**
+     * 取得設定檔參數 - 全部
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->_options;
+    }
+    
+    /**
+     * 版本檢查
+     * @param string $version 版本編號
+     */
+    public function checkVersion($version)
+    {
+        return $this->_options['version'] == $version;
+    }
+
+    /**
      * ******************************************************
      * ************** Content Process Function **************
      * ******************************************************
@@ -441,8 +513,8 @@ abstract class Config
 
     /**
      * 設定資料過濾，在喂給helper時不會有多餘的資料
-     * 
-     * @param unknown $defined
+     *
+     * @param array $defined            
      */
     public static function definedFilter(& $defined)
     {

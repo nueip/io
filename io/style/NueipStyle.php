@@ -67,11 +67,11 @@ class NueipStyle
      * 凍結欄位
      * 
      * 如果有凍結，會動略過上方標題列，從第一個內容開始，所以只要指定欄位
-     * 不凍結(null)、欄位名稱，預設值：A
+     * 不凍結(null)、欄位名稱，預設值：無
      * 
      * @var array
      */
-    protected $_freeze = 'A';
+    protected $_freeze = '';
     
     protected $_hide = array();
     

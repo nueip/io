@@ -156,13 +156,42 @@ class ExcelBuilder
         $this->_listMap[$keyName] = $listDEfined;
         return $this;
     }
+    
+    /**
+     * 輸出資料 - 匯出成品
+     * @param string $name
+     */
+    public function output($name = '')
+    {
+        $name = ($name) ? $name : $this->_options['fileName'];
+        
+        $this->_builder->setSheet(1);
+        $this->_builder->output($name);
+    }
+    
+    /**
+     * 輸出資料 - 取得資料 - 原始資料/匯入成品
+     */
+    public function getData()
+    {
+        return $this->_data;
+    }
 
+    /**
+     * ***********************************************
+     * ************** Building Function **************
+     * ***********************************************
+     */
+    
     /**
      * 建構資料
      * @return \app\libraries\io\builder\ExcelBuilder
      */
     public function build()
     {
+        // 參數工作表設定
+        $this->optionBuilder();
+        
         // 標題建構
         $this->titleBuilder();
         
@@ -180,33 +209,50 @@ class ExcelBuilder
         
         return $this;
     }
-
+    
     /**
-     * 輸出資料
-     * @param unknown $name
+     * 參數工作表設定
      */
-    public function output($name = '')
+    public function optionBuilder()
     {
-        $name = ($name) ? $name : $this->_options['fileName'];
+        // 第一張表更名為設工作表 ConfigSheet
+        $configSheet = $this->_builder->setSheet(0, 'ConfigSheet')->getSheet();
         
-        $this->_builder->setSheet(0);
-        $this->_builder->output($name);
+        // ====== 參數工作表格式 ======
+        // 保護工作表
+        $configSheet->getProtection()->setSheet(true);
+        // 隱藏工作表
+        $configSheet->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_VERYHIDDEN);
+        // 設定A欄寬度
+        $configSheet->getDefaultColumnDimension()->setWidth('15');
+        $configSheet->getColumnDimension('A')->setWidth('25');
+        // 預設儲存格格式:文字
+        $this->_builder->getSpreadsheet()->getDefaultStyle()->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+        // ======
+        
+        
+        // ====== 參數工作表內容 - 基本參數 ======
+        // 取得設定檔參數
+        $options = $this->_config->getOptions();
+        // 基本參數設定 - 第一列:設定檔參數、第二列:建構函式參數
+        $this->_builder->addRows([
+            $options,
+            $this->_options
+        ]);
+        // ======
     }
-
-    /**
-     * ***********************************************
-     * ************** Building Function **************
-     * ***********************************************
-     */
+    
     
     /**
      * 標題建構
      */
     public function titleBuilder()
     {
+        // 取得設定檔參數-工作表名稱
+        $sheetName = $this->_config->getOption('sheetName');
         
         // 取得工作表
-        $sheet = $this->_builder->getSheet();
+        $sheet = $this->_builder->getSheet($sheetName, true);
         
         // 起始座標
         $colStart = 'A';
@@ -378,61 +424,96 @@ class ExcelBuilder
     public function listBuilder()
     {
         // 記錄原工作表索引 - 取得下拉選單的目標工作表索引
-        $origSheetIndex = $this->_builder->getActiveSheetIndex();
-        
-        
-        // ====== 取得參數工作表 ======
-        // 取得工作表數量
-        $sheetCount = $this->_builder->getSheetCount();
-        // 新增參數Sheet - 下拉選單對映表sheet
-        $this->_builder->setSheet($sheetCount, 'ConfigSheet');
-        // 記錄參數工作表索引
-        $configSheetIndex = $this->_builder->getActiveSheetIndex();
+        $origSheet = $this->_builder->getSheet();
         // 取得參數工作表
-        $configSheet = $this->_builder->getSheet();
-        // ======
+        $configSheet = $this->_builder->getSheet('ConfigSheet');
         
         
-        // ====== 參數工作表格式 ======
-        // 保護工作表
-        $configSheet->getProtection()->setSheet(true);
-        // 隱藏工作表
-        $configSheet->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_VERYHIDDEN);
-        // 設定A欄寬度
-        $configSheet->getDefaultColumnDimension()->setWidth('15');
-        $configSheet->getColumnDimension('A')->setWidth('25');
-        // 預設儲存格格式:文字
-        $this->_builder->getSpreadsheet()->getDefaultStyle()->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
-        // ======
+        // ========== 建構下拉選單 ==========
+        // 取得內容列數起訖
+        $rowStart = $this->offsetMap('content', 'rowStart');
+        $rowEnd= $this->offsetMap('content', 'rowEnd');
         
+        // 取得參數工作表目前列數
+        $csRow = $configSheet->getHighestRow();
         
-        // ====== 參數工作表內容 - 基本參數 ======
-        // 基本參數設定
-        $this->_builder->addRows([
-            [
-                '匯入功能名稱',
-                'AddIns',
-            ],
-            [
-                '版本資訊',
-                $this->_version
-            ]
-        ]);
-        // ======
+        // 取得下拉選單設定
+        $listMap = $this->_listMap;
         
+        // 取得內容定義資料
+        $content = $this->_config->getContent();
+        $cDefined = array_column($content['defined'], 'value', 'key');
         
-        // 建構下拉選單
-        $this->_listBuilder($origSheetIndex, $configSheetIndex);
+        // 遍歷資料範本 - 建構下拉選單值的資料表，並繫結到目標欄位
+        foreach ($cDefined as $key => $colTitle) {
+            // 跳過不處理的欄位
+            if (!isset($listMap[$key])) {
+                continue;
+            }
+            
+            
+            // ====== 將下拉選單項目寫到參數工作表 ======
+            // 取得下拉選單項目定義資料
+            $listItem = array_column($listMap[$key], 'text');
+            // 將下拉選單名稱、下拉選單定義合併，名稱在第一欄
+            $listItem = array_merge(array(
+                $colTitle
+            ), $listItem);
+            // 將下拉選單項目寫到參數工作表
+            $this->_builder->setSheet($configSheet)->setRowOffset($csRow)->addRows([
+                $listItem
+            ]);
+            // 更新參數工作列數
+            $csRow = $configSheet->getHighestRow();
+            // 計算定義佔用的欄數，並取得該欄的代碼
+            $lastColCode = $this->_builder->num2alpha(sizeof($listItem));
+            // ======
+            
+            
+            // ====== 將下拉選單繫結到目標工作表 ======
+            // 取得資料Key對映的Excel欄位碼
+            $colCode = $this->_builder->getColumnMap($key);
+            $this->_builder->setSheet($origSheet);
+            // 遍歷目標欄位的各cell - 下拉選單需一cell一cell的繫結
+            for ($i = $rowStart; $i <= $rowEnd; $i ++) {
+                $origSheet->getCell($colCode. $i)
+                ->getDataValidation()
+                ->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST)
+                ->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION)
+                ->setAllowBlank(false)
+                ->setShowInputMessage(true)
+                ->setShowErrorMessage(true)
+                ->setShowDropDown(true)
+                ->setErrorTitle('輸入的值有誤')
+                ->setError('您輸入的值不在下拉框列表內.')
+                ->setPromptTitle($colTitle)
+                ->
+                // 把sheet名为mySheet2的A1，A2,A3作为选项
+                setFormula1($configSheet->getTitle() . '!$B$' . $csRow . ':$' . $lastColCode . '$' . $csRow);
+            }
+            // ======
+        }
+        // ==========
+        
         
         // 回原工作表
-        $this->_builder->setSheet($origSheetIndex);
-        
-        return ;
-        
-        // 取得工作表 - 從名子
-        $spreadsheet = $this->_builder->getSpreadsheet()->getSheetByName('ConfigSheete');
+        $this->_builder->setSheet($origSheet);
     }
+    
+    /**
+     * ********************************************
+     * ************** Parse Function **************
+     * ********************************************
+     */
 
+    /**
+     * 
+     */
+    public function parse()
+    {
+        
+    }
+    
     /**
      * *********************************************
      * ************** Offset Function **************
@@ -587,84 +668,6 @@ class ExcelBuilder
             
             // 設定Class樣式
             \app\libraries\io\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
-        }
-    }
-    
-    
-    /**
-     * 建構下拉選單
-     * 
-     * @param int $origSheetIndex 原工作表索引，即下拉選單的目標
-     * @param int $configSheetIndex 參數工作表索引
-     */
-    protected function _listBuilder($origSheetIndex, $configSheetIndex)
-    {
-        // 取得目標工作表、參數工作表
-        $configSheet = $this->_builder->setSheet($configSheetIndex)->getSheet();
-        $origSheet = $this->_builder->setSheet($origSheetIndex)->getSheet();
-        
-        // 取得內容列數起訖
-        $rowStart = $this->offsetMap('content', 'rowStart');
-        $rowEnd= $this->offsetMap('content', 'rowEnd');
-        
-        // 取得參數工作表目前列數
-        $csRow = $configSheet->getHighestRow();
-        
-        // 取得下拉選單設定
-        $listMap = $this->_listMap;
-        
-        // 取得內容定義資料
-        $content = $this->_config->getContent();
-        $cDefined = array_column($content['defined'], 'value', 'key');
-        
-        // 遍歷資料範本 - 建構下拉選單值的資料表，並繫結到目標欄位
-        foreach ($cDefined as $key => $colTitle) {
-            // 跳過不處理的欄位
-            if (!isset($listMap[$key])) {
-                continue;
-            }
-            
-            
-            // ====== 將下拉選單項目寫到參數工作表 ======
-            // 取得下拉選單項目定義資料
-            $listItem = array_column($listMap[$key], 'text');
-            // 將下拉選單名稱、下拉選單定義合併，名稱在第一欄
-            $listItem = array_merge(array(
-                $colTitle
-            ), $listItem);
-            // 將下拉選單項目寫到參數工作表
-            $this->_builder->setSheet($configSheet)->setRowOffset($csRow)->addRows([
-                $listItem
-            ]);
-            // 更新參數工作列數
-            $csRow = $configSheet->getHighestRow();
-            // 計算定義佔用的欄數，並取得該欄的代碼
-            $lastColCode = $this->_builder->num2alpha(sizeof($listItem));
-            // ======
-            
-            
-            // ====== 將下拉選單繫結到目標工作表 ======
-            // 取得資料Key對映的Excel欄位碼
-            $colCode = $this->_builder->getColumnMap($key);
-            $this->_builder->setSheet($origSheet);
-            // 遍歷目標欄位的各cell - 下拉選單需一cell一cell的繫結
-            for ($i = $rowStart; $i <= $rowEnd; $i ++) {
-                $origSheet->getCell($colCode. $i)
-                ->getDataValidation()
-                ->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST)
-                ->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION)
-                ->setAllowBlank(false)
-                ->setShowInputMessage(true)
-                ->setShowErrorMessage(true)
-                ->setShowDropDown(true)
-                ->setErrorTitle('輸入的值有誤')
-                ->setError('您輸入的值不在下拉框列表內.')
-                ->setPromptTitle($colTitle)
-                ->
-                // 把sheet名为mySheet2的A1，A2,A3作为选项
-                setFormula1($configSheet->getTitle() . '!$B$' . $csRow . ':$' . $lastColCode . '$' . $csRow);
-            }
-            // ======
         }
     }
 }
