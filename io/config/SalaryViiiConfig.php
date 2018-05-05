@@ -35,7 +35,7 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
             '\\'
         ), '', __CLASS__));
         // 工作表名稱
-        $this->_options['sheetName'] = $this->_options['configName'];
+        $this->_options['sheetName'] = '非固定科目';
     }
 
     /**
@@ -121,7 +121,7 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
             'defined' => array(
                 't1' => array(
                     'key' => 't1',
-                    'value' => '員工編號',
+                    'value' => get_language('id'), //'員工編號',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(),
@@ -131,7 +131,7 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
                 ),
                 't2' => array(
                     'key' => 't2',
-                    'value' => '姓名',
+                    'value' => get_language('name'), //'姓名',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(),
@@ -141,7 +141,7 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
                 ),
                 't3' => array(
                     'key' => 't3',
-                    'value' => '科目名稱',
+                    'value' => get_language('payitem'), //'科目名稱',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(),
@@ -151,7 +151,7 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
                 ),
                 't4' => array(
                     'key' => 't4',
-                    'value' => '金額',
+                    'value' => get_language('allowancedollar'), //'金額',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(),
@@ -181,7 +181,7 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
             'defined' => array(
                 'u_no' => array(
                     'key' => 'u_no',
-                    'value' => '員工編號',
+                    'value' => get_language('id'), //'員工編號',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(
@@ -193,7 +193,7 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
                 ),
                 'c_name' => array(
                     'key' => 'c_name',
-                    'value' => '姓名',
+                    'value' => get_language('name'), //'姓名',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(
@@ -205,7 +205,7 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
                 ),
                 'payroll_item' => array(
                     'key' => 'payroll_item',
-                    'value' => '科目名稱',
+                    'value' => get_language('payitem'), //'科目名稱',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(),
@@ -213,9 +213,9 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
                     'default' => '',
                     'list' => ''
                 ),
-                'amount' => array(
-                    'key' => 'amount',
-                    'value' => '金額',
+                'allowancedollar' => array(
+                    'key' => 'allowancedollar',
+                    'value' => get_language('allowancedollar'), //'金額',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(

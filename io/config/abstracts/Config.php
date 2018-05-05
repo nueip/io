@@ -375,6 +375,29 @@ abstract class Config
     {
         return $this->_options['version'] == $version;
     }
+    
+    /**
+     * 參數解析
+     * 
+     * 解析來自參數工作表中讀到的參數 (依序還原Key)
+     * 為本設定檔資料時，才回傳解析後的資料，否則回傳false
+     * 
+     * @param array $options 參數
+     */
+    public function optionParser(Array $options)
+    {
+        // 依序還原Key
+        
+        // 資料範本資料量、key
+        $optionSize = sizeof($this->_options);
+        $optionKey = array_keys($this->_options);
+        
+        $options = array_slice($options, 0, $optionSize);
+        $options = array_combine($optionKey, $options);
+        
+        // 為本設定檔資料時，才回傳解析後的資料，否則回傳false
+        return $this->_options['configName'] == $options['configName'] ? $options: false;
+    }
 
     /**
      * ******************************************************
@@ -405,8 +428,8 @@ abstract class Config
             // 內容整併處理時執行 - 迴圈內自定步驟
             $this->eachRefactor($key, $row);
             
-            // 執行資料轉換 value => text
-            $this->value2Text($key, $row);
+            // 執行資料轉換 value <=> text - 單筆資料
+            $this->valueTextMap($key, $row);
         }
         
         return $this;
@@ -434,27 +457,59 @@ abstract class Config
     }
 
     /**
-     * 執行資料轉換 value => text
-     *
+     * 匯入資料解析
+     * 
+     * 將匯入的資料依資料範本給key，並做資料轉換 text=>value
+     * 
+     * @param array $data 匯入的原始資料
+     * @return \app\libraries\io\config\abstracts\Config
+     */
+    public function contentParser(Array & $data)
+    {
+        // 將現有對映表轉成text=>value格式存入暫存
+        $this->text2ValueMapBuilder();
+        // 資料範本資料量、key
+        $templateSize = sizeof($this->_dataTemplate);
+        $templateKey = array_keys($this->_dataTemplate);
+        
+        foreach ($data as $key => &$row) {
+            $row = (array) $row;
+            
+            $row = array_slice($row, 0, $templateSize);
+            $row = array_combine($templateKey, $row);
+            
+            // 執行資料轉換 value <=> text - 單筆資料
+            $this->valueTextMap($key, $row);
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * 執行資料轉換 value <=> text - 單筆資料
+     * 
+     * 依照建構的對映表是value => text，還是text =>value決定轉換方向
+     * 不管同名(text)問題
+     * 
      * @param string $key
      *            當次迴圈的Key值
      * @param array $row
      *            當次迴圈的內容
      */
-    public function value2Text($key, &$row)
+    public function valueTextMap($key, &$row)
     {
         // 遍歷資料，並轉換內容
         foreach ($row as $k => &$v) {
             // 檢查是否需要內容轉換
-            if (! isset($this->_cache['value2Text'][$k])) {
+            if (! isset($this->_cache['valueTextMap'][$k])) {
                 continue;
             }
             
             // 處理資料轉換
-            $v = isset($this->_cache['value2Text'][$k][$v]) ? $this->_cache['value2Text'][$k][$v] : '';
+            $v = isset($this->_cache['valueTextMap'][$k][$v]) ? $this->_cache['valueTextMap'][$k][$v] : '';
         }
     }
-
+    
     /**
      * **************************************************
      * ************** Map Builder Function **************
@@ -467,10 +522,10 @@ abstract class Config
     public function value2TextMapBuilder()
     {
         // 初始化暫存
-        $this->_cache['value2Text'] = array();
+        $this->_cache['valueTextMap'] = array();
         
         foreach ($this->_listMap as $key => $map) {
-            $this->_cache['value2Text'][$key] = array_column($map, 'text', 'value');
+            $this->_cache['valueTextMap'][$key] = array_column($map, 'text', 'value');
         }
     }
 
@@ -480,10 +535,10 @@ abstract class Config
     public function text2ValueMapBuilder()
     {
         // 初始化暫存
-        $this->_cache['text2Value'] = array();
+        $this->_cache['valueTextMap'] = array();
         
         foreach ($this->_listMap as $key => $map) {
-            $this->_cache['text2Value'][$key] = array_column($map, 'value', 'text');
+            $this->_cache['valueTextMap'][$key] = array_column($map, 'value', 'text');
         }
     }
 
@@ -538,7 +593,9 @@ abstract class Config
     
     /**
      * 內容整併處理時執行 - 迴圈內自定步驟
-     *
+     * 
+     * 對內容整併時，需額外處理的欄位，不建議使用，應在原始資料傳入時就做好
+     * 
      * @param string $key
      *            當次迴圈的Key值
      * @param array $row

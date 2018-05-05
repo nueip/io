@@ -35,7 +35,7 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
             '\\'
         ), '', __CLASS__));
         // 工作表名稱
-        $this->_options['sheetName'] = $this->_options['configName'];
+        $this->_options['sheetName'] = '批次加保範本';
     }
 
     /**
@@ -733,17 +733,17 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
         
         // Default
         $content['defined']['ins_status']['default'] = '1';
-        $content['disability_level']['default'] = '0';
-        $content['assured_category']['default'] = '494';
-        $content['labor_insurance_1']['default'] = '1';
-        $content['labor_insurance_2']['default'] = '1';
-        $content['emp_insurance']['default'] = '1';
-        $content['labor_retir_system']['default'] = '1';
-        $content['labor_retir_salary']['default'] = '';
-        $content['com_withhold_rate']['default'] = '0';
-        $content['emp_withhold_rate']['default'] = '0';
-        $content['ins_category']['default'] = '443';
-        $content['subsidy_eligibility']['default'] = '0';
+        $content['defined']['disability_level']['default'] = '0';
+        $content['defined']['assured_category']['default'] = '494';
+        $content['defined']['labor_insurance_1']['default'] = '1';
+        $content['defined']['labor_insurance_2']['default'] = '1';
+        $content['defined']['emp_insurance']['default'] = '1';
+        $content['defined']['labor_retir_system']['default'] = '1';
+        $content['defined']['labor_retir_salary']['default'] = '';
+        $content['defined']['com_withhold_rate']['default'] = '0';
+        $content['defined']['emp_withhold_rate']['default'] = '0';
+        $content['defined']['ins_category']['default'] = '443';
+        $content['defined']['subsidy_eligibility']['default'] = '0';
         
         // 設定內容定義
         $this->setContent($content);

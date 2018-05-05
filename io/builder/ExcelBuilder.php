@@ -9,22 +9,23 @@ namespace app\libraries\io\builder;
  */
 class ExcelBuilder
 {
-    
+
     /**
      * 預設參數
+     * 
      * @var array
      */
     protected $_options = array(
         'fileName' => 'export'
     );
-    
+
     /**
      * 資料
      *
      * @var array
      */
     protected $_version = '0.1';
-    
+
     /**
      * 資料
      *
@@ -34,39 +35,38 @@ class ExcelBuilder
 
     /**
      * 定義資料
-     * 
+     *
      * @var object
      */
     protected $_config;
-    
+
     /**
      * Style定義資料
      *
      * @var object
      */
     protected $_style;
-    
+
     /**
      * 下拉選單定義資料
      *
      * @var array $list[$key] = array('value' => '值', 'text' => '文字', 'type' => '資料類型');
      */
     protected $_listMap;
-    
+
     /**
      * 輸出暫存資料
      *
      * @var object
      */
     protected $_builder;
-    
+
     /**
      * 欄位座標參數表
      *
      * @var array
      */
     protected $_offsetMap;
-    
 
     /**
      * Construct
@@ -76,10 +76,7 @@ class ExcelBuilder
     public function __construct()
     {
         // 初始化
-        $this->_builder = \yidas\phpSpreadsheet\Helper::newSpreadsheet();
-        $this->_builder->getSpreadsheet()->getProperties()
-            ->setCreator("NuEIP")
-            ->setTitle("Office 2007 XLSX Document");
+        $this->init();
     }
 
     /**
@@ -95,6 +92,28 @@ class ExcelBuilder
      */
     
     /**
+     * 初始化
+     *
+     * @param array $options
+     *            參數
+     */
+    public function init($phpSpreadsheet = NULL)
+    {
+        // 初始化
+        $this->_builder = \yidas\phpSpreadsheet\Helper::newSpreadsheet($phpSpreadsheet);
+        
+        if (! $phpSpreadsheet) {
+            // 新建Excel時才設定
+            $this->_builder->getSpreadsheet()
+                ->getProperties()
+                ->setCreator("NuEIP")
+                ->setTitle("Office 2007 XLSX Document");
+        }
+        
+        return $this;
+    }
+
+    /**
      * 載入參數
      *
      * @param array $options
@@ -105,7 +124,7 @@ class ExcelBuilder
         $this->_options = $options;
         return $this;
     }
-    
+
     /**
      * 載入資料
      *
@@ -117,7 +136,7 @@ class ExcelBuilder
         $this->_data = $data;
         return $this;
     }
-    
+
     /**
      * 載入結構定義
      *
@@ -132,7 +151,7 @@ class ExcelBuilder
         $this->_listMap = $this->_config->getList();
         return $this;
     }
-    
+
     /**
      * 載入樣式定義
      *
@@ -144,7 +163,7 @@ class ExcelBuilder
         $this->_style = $style;
         return $this;
     }
-    
+
     /**
      * 載入下拉選單定義 - 額外定義資料
      *
@@ -156,10 +175,11 @@ class ExcelBuilder
         $this->_listMap[$keyName] = $listDEfined;
         return $this;
     }
-    
+
     /**
      * 輸出資料 - 匯出成品
-     * @param string $name
+     * 
+     * @param string $name            
      */
     public function output($name = '')
     {
@@ -168,7 +188,7 @@ class ExcelBuilder
         $this->_builder->setSheet(1);
         $this->_builder->output($name);
     }
-    
+
     /**
      * 輸出資料 - 取得資料 - 原始資料/匯入成品
      */
@@ -185,6 +205,7 @@ class ExcelBuilder
     
     /**
      * 建構資料
+     * 
      * @return \app\libraries\io\builder\ExcelBuilder
      */
     public function build()
@@ -209,7 +230,7 @@ class ExcelBuilder
         
         return $this;
     }
-    
+
     /**
      * 參數工作表設定
      */
@@ -227,9 +248,11 @@ class ExcelBuilder
         $configSheet->getDefaultColumnDimension()->setWidth('15');
         $configSheet->getColumnDimension('A')->setWidth('25');
         // 預設儲存格格式:文字
-        $this->_builder->getSpreadsheet()->getDefaultStyle()->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+        $this->_builder->getSpreadsheet()
+            ->getDefaultStyle()
+            ->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
         // ======
-        
         
         // ====== 參數工作表內容 - 基本參數 ======
         // 取得設定檔參數
@@ -241,8 +264,7 @@ class ExcelBuilder
         ]);
         // ======
     }
-    
-    
+
     /**
      * 標題建構
      */
@@ -267,7 +289,9 @@ class ExcelBuilder
             $this->_config->definedFilter($tRow);
             
             // 寫入標題資料至excel
-            $this->_builder->addRows([$tRow['defined']]);
+            $this->_builder->addRows([
+                $tRow['defined']
+            ]);
             
             // 取得本次結束座標
             $colEnd = $this->_builder->getSheet()->getHighestColumn();
@@ -295,7 +319,7 @@ class ExcelBuilder
         // 起始座標
         $colStart = 'A';
         $rowStart = $this->_builder->getSheet()->getHighestRow();
-        $rowStart++;
+        $rowStart ++;
         // 結束座標 - 初始化
         $colEnd = 'A';
         $rowEnd = '0';
@@ -312,7 +336,7 @@ class ExcelBuilder
         // 座標記錄 - 全內容
         $this->offsetMapSet('content', 'all', $colStart, $rowStart, $colEnd, $rowEnd);
     }
-    
+
     /**
      * 結尾建構
      */
@@ -321,7 +345,7 @@ class ExcelBuilder
         // 起始座標
         $colStart = 'A';
         $rowStart = $this->_builder->getSheet()->getHighestRow();
-        $rowStart++;
+        $rowStart ++;
         // 結束座標 - 初始化
         $colEnd = 'A';
         $rowEnd = '0';
@@ -332,7 +356,9 @@ class ExcelBuilder
             $this->_config->definedFilter($fRow);
             
             // 寫入標題資料至excel
-            $this->_builder->addRows([$fRow['defined']]);
+            $this->_builder->addRows([
+                $fRow['defined']
+            ]);
             
             // 取得本次結束座標
             $colNow = $this->_builder->getSheet()->getHighestColumn();
@@ -352,7 +378,7 @@ class ExcelBuilder
         // 座標記錄 - 全工作表
         $this->offsetMapSet('sheet', 'all', $colStart, '1', $colEnd, $rowEnd);
     }
-    
+
     /**
      * 樣式建構Style
      */
@@ -411,13 +437,13 @@ class ExcelBuilder
         $freezeCol = $this->_style->getFreeze();
         if ($freezeCol) {
             $contentRange = $this->offsetMap('content', 'rowStart');
-            $freezeCell = $freezeCol.$contentRange;
+            $freezeCell = $freezeCol . $contentRange;
             // 凍結欄位
             \app\libraries\io\builder\ExcelStyleBuilder::setFreeze($freezeCell, $spreadsheet);
         }
         // ======
     }
-    
+
     /**
      * 下拉選單建構
      */
@@ -428,11 +454,10 @@ class ExcelBuilder
         // 取得參數工作表
         $configSheet = $this->_builder->getSheet('ConfigSheet');
         
-        
         // ========== 建構下拉選單 ==========
         // 取得內容列數起訖
         $rowStart = $this->offsetMap('content', 'rowStart');
-        $rowEnd= $this->offsetMap('content', 'rowEnd');
+        $rowEnd = $this->offsetMap('content', 'rowEnd');
         
         // 取得參數工作表目前列數
         $csRow = $configSheet->getHighestRow();
@@ -447,10 +472,9 @@ class ExcelBuilder
         // 遍歷資料範本 - 建構下拉選單值的資料表，並繫結到目標欄位
         foreach ($cDefined as $key => $colTitle) {
             // 跳過不處理的欄位
-            if (!isset($listMap[$key])) {
+            if (! isset($listMap[$key])) {
                 continue;
             }
-            
             
             // ====== 將下拉選單項目寫到參數工作表 ======
             // 取得下拉選單項目定義資料
@@ -460,7 +484,9 @@ class ExcelBuilder
                 $colTitle
             ), $listItem);
             // 將下拉選單項目寫到參數工作表
-            $this->_builder->setSheet($configSheet)->setRowOffset($csRow)->addRows([
+            $this->_builder->setSheet($configSheet)
+                ->setRowOffset($csRow)
+                ->addRows([
                 $listItem
             ]);
             // 更新參數工作列數
@@ -469,25 +495,24 @@ class ExcelBuilder
             $lastColCode = $this->_builder->num2alpha(sizeof($listItem));
             // ======
             
-            
             // ====== 將下拉選單繫結到目標工作表 ======
             // 取得資料Key對映的Excel欄位碼
             $colCode = $this->_builder->getColumnMap($key);
             $this->_builder->setSheet($origSheet);
             // 遍歷目標欄位的各cell - 下拉選單需一cell一cell的繫結
             for ($i = $rowStart; $i <= $rowEnd; $i ++) {
-                $origSheet->getCell($colCode. $i)
-                ->getDataValidation()
-                ->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST)
-                ->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION)
-                ->setAllowBlank(false)
-                ->setShowInputMessage(true)
-                ->setShowErrorMessage(true)
-                ->setShowDropDown(true)
-                ->setErrorTitle('輸入的值有誤')
-                ->setError('您輸入的值不在下拉框列表內.')
-                ->setPromptTitle($colTitle)
-                ->
+                $origSheet->getCell($colCode . $i)
+                    ->getDataValidation()
+                    ->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST)
+                    ->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION)
+                    ->setAllowBlank(false)
+                    ->setShowInputMessage(true)
+                    ->setShowErrorMessage(true)
+                    ->setShowDropDown(true)
+                    ->setErrorTitle('輸入的值有誤')
+                    ->setError('您輸入的值不在下拉框列表內.')
+                    ->setPromptTitle($colTitle)
+                    ->
                 // 把sheet名为mySheet2的A1，A2,A3作为选项
                 setFormula1($configSheet->getTitle() . '!$B$' . $csRow . ':$' . $lastColCode . '$' . $csRow);
             }
@@ -495,25 +520,71 @@ class ExcelBuilder
         }
         // ==========
         
-        
         // 回原工作表
         $this->_builder->setSheet($origSheet);
     }
-    
+
     /**
      * ********************************************
      * ************** Parse Function **************
      * ********************************************
      */
-
+    
     /**
+     * 解析匯入資料並回傳
      * 
+     * @throws \Exception
+     * @return \app\libraries\io\builder\ExcelBuilder
      */
     public function parse()
     {
+        // 取得參數資料 - 設定檔參數
+        $this->_builder->getSheet('ConfigSheet');
+        $config = $this->_builder->getRow();
         
+        // 參數解析
+        $config = $this->_config->optionParser($config);
+        
+        if ($config === false) {
+            throw new \Exception('參數表錯誤', 404);
+        }
+        
+        // 取得標題設定
+        $title = $this->_config->getTitle();
+        $titleRowNumber = sizeof($title);
+        // 取得結尾設定
+        $foot = $this->_config->getFoot();
+        $footRowNumber = sizeof($foot);
+        
+        // 取得原始資料
+        $data = array();
+        $sheet = $this->_builder->getSheet($config['sheetName']);
+        $this->_builder->setSheet($sheet);
+        while ($row = $this->_builder->getRow()) {
+            // 略過不要的資料 - 標題
+            if ($titleRowNumber > 0) {
+                $titleRowNumber--;
+                continue;
+            }
+            // 取得資料
+            $data[] = $row;
+        }
+        
+        // 去除結尾資料
+        if ($footRowNumber) {
+            $length = sizeof($data) - $footRowNumber;
+            $data = array_slice($data, 0, $length);
+        }
+        
+        // 匯入資料解析
+        $this->_config->contentParser($data);
+        
+        // 回寫資料
+        $this->_data = $data;
+        
+        return $this;
     }
-    
+
     /**
      * *********************************************
      * ************** Offset Function **************
@@ -523,9 +594,12 @@ class ExcelBuilder
     /**
      * 取得座標記錄內容
      *
-     * @param string $type 定義種類名稱 title,content,foot,sheet
-     * @param string $content 座標格式類型 colStart,rowStart,colEnd,rowEnd,range
-     * @param string $configName 定義名稱 取全域$type資料時，值為null
+     * @param string $type
+     *            定義種類名稱 title,content,foot,sheet
+     * @param string $content
+     *            座標格式類型 colStart,rowStart,colEnd,rowEnd,range
+     * @param string $configName
+     *            定義名稱 取全域$type資料時，值為null
      */
     public function offsetMap($type, $content = 'range', $configName = null)
     {
@@ -537,16 +611,22 @@ class ExcelBuilder
             return isset($this->_offsetMap[$type]['detail'][$configName][$content]) ? $this->_offsetMap[$type]['detail'][$configName][$content] : NULL;
         }
     }
-    
+
     /**
      * 座標記錄
-     * 
-     * @param string $type 定義種類名稱 title,content,foot,sheet
-     * @param string $config 內容，如果為全域$type時，類型為string
-     * @param string $colStart 起始欄
-     * @param string $rowStart 起始列
-     * @param string $colEnd 結束欄
-     * @param string $rowEnd 結束列
+     *
+     * @param string $type
+     *            定義種類名稱 title,content,foot,sheet
+     * @param string $config
+     *            內容，如果為全域$type時，類型為string
+     * @param string $colStart
+     *            起始欄
+     * @param string $rowStart
+     *            起始列
+     * @param string $colEnd
+     *            結束欄
+     * @param string $rowEnd
+     *            結束列
      */
     protected function offsetMapSet($type, $config, $colStart, $rowStart, $colEnd, $rowEnd)
     {
@@ -562,7 +642,7 @@ class ExcelBuilder
             'rowStart' => $rowStart,
             'colEnd' => $colEnd,
             'rowEnd' => $rowEnd,
-            'range' => $colStart.$rowStart.':'.$colEnd.$rowEnd
+            'range' => $colStart . $rowStart . ':' . $colEnd . $rowEnd
         );
         
         // 設定座標記錄
@@ -574,12 +654,12 @@ class ExcelBuilder
             $conf['configName'] = $configName = isset($config['config']['name']) ? $config['config']['name'] : '';
             // 檢查定義名稱是否重複
             if (isset($this->_offsetMap[$type]['detail'][$configName])) {
-                throw new \Exception('Config Name Duplicate: '.$configName, 404);
+                throw new \Exception('Config Name Duplicate: ' . $configName, 404);
             }
             $this->_offsetMap[$type]['detail'][$configName] = $conf;
         }
     }
-    
+
     /**
      * **********************************************
      * ************** Private Function **************
@@ -609,7 +689,7 @@ class ExcelBuilder
         foreach ($this->_data as $k => $row) {
             // 重寫欄位定義的value - 保持定義格式
             foreach ($row as $key => $col) {
-                if (isset ($cDefined[$key])) {
+                if (isset($cDefined[$key])) {
                     $cDefined[$key]['value'] = $col;
                 }
             }
@@ -622,7 +702,7 @@ class ExcelBuilder
         
         return $this->_data;
     }
-    
+
     /**
      * 樣式建構Style - 從Config
      */
@@ -655,8 +735,8 @@ class ExcelBuilder
             $colCode = $this->_builder->getColumnMap($keyName);
             // 取得內容列數起訖
             $rowStart = $this->offsetMap($blockType, 'rowStart', $blockName);
-            $rowEnd= $this->offsetMap($blockType, 'rowEnd', $blockName);
-            $blockRange = $colCode.$rowStart.':'.$colCode.$rowEnd;
+            $rowEnd = $this->offsetMap($blockType, 'rowEnd', $blockName);
+            $blockRange = $colCode . $rowStart . ':' . $colCode . $rowEnd;
             
             // 取得樣式資料
             $style = isset($conf['style']) ? $conf['style'] : array();

@@ -87,7 +87,12 @@ class NueipIO
      */
     
     /**
-     * 匯出
+     * 匯出處理 - 取得匯出檔
+     * 
+     * 1.流程：傳入SQL層原始資料 => 轉換成UI層資料 => 建構匯出檔 => 匯出
+     * 2.資料結構來自config object，資料樣式來自style object
+     * 3.在 匯出處理+匯入處理 中，SQL層原始資料形成一個循環，是最初值，也是最終值
+     * 
      */
     public function export($data, $config, $builder = 'Excel', $style = 'Nueip')
     {
@@ -104,32 +109,31 @@ class NueipIO
         $this->setStyle($style);
         
         // 匯出建構並輸出
-        $this->buildExport();
+        $this->exportBuilder();
     }
 
     /**
-     * 匯入
+     * 匯入處理 - 取得匯入資料
+     * 
+     * 1.流程：匯入 => 取得UI層原始資料 => 轉換成SQL層資料 => 傳回 SQL層資料
+     * 2.資料結構來自config object
+     * 3.在 匯出處理+匯入處理 中，SQL層原始資料形成一個循環，是最初值，也是最終值
+     * 
+     * 改進可能：config名稱可存在參數工作表ConfigSheet中
      */
     public function import($config, $builder = 'Excel')
     {
-        // 取得上傳資料 - 上傳檔轉資料陣列
-        $row = $this->uploadFile2Raw();
-        
-        // 載入資料
-        $this->setData($row);
-        
         // 載入定義檔
         $this->setConfig($config);
         
         // 建立io物件
         $this->setBuilder($builder);
         
-        // 匯入建構並回傳
-        $this->buildImport();
-        exit;
+        // 取得上傳資料 - 將上傳檔載入IO建構物件
+        $this->uploadFile2Builder();
         
-        // 取得資料陣列
-        return $this->_builder->output();
+        // 解析資料並回傳
+        return $this->importParser();
     }
     
     /**
@@ -217,7 +221,7 @@ class NueipIO
     /**
      * 匯出建構並輸出
      */
-    public function buildExport()
+    public function exportBuilder()
     {
         // 載入參數
         $this->_builder->setOptions($this->_options);
@@ -240,12 +244,11 @@ class NueipIO
     /**
      * 匯入建構並回傳
      */
-    public function buildImport()
+    public function importParser()
     {
         // 載入參數
         $this->_builder->setOptions($this->_options);
-        // 載入資料
-        $this->_builder->setData($this->_data);
+        
         // 載入結構定義
         $this->_builder->setConfig($this->_config);
         
@@ -255,7 +258,7 @@ class NueipIO
         }
         
         // 建構資料 & 輸出
-        return $this->_builder->parse()->get();
+        return $this->_builder->parse()->getData();
     }
     
     /**
@@ -265,12 +268,12 @@ class NueipIO
      */
     
     /**
-     * 取得上傳資料 - 上傳檔轉資料陣列
+     * 取得上傳資料 - 將上傳檔載入IO建構物件
      *
      * @throws Exception
      * @return array
      */
-    protected function uploadFile2Raw()
+    protected function uploadFile2Builder()
     {
         // 上傳路徑
         $UploadDir = 'uploads/tmp_files/';
@@ -280,7 +283,7 @@ class NueipIO
         
         // 錯誤檢查
         if (! isset($_FILES['fileupload'])) {
-            throw new Exception('File upload failed !', 400);
+            throw new \Exception('File upload failed !', 400);
         }
         
         // 檔案資料
@@ -291,36 +294,13 @@ class NueipIO
         
         // 檔案檢查 - 副檔名
         if ($sub_name != 'xls' && $sub_name != 'xlsx') {
-            throw new Exception(get_language('wrongtype'), 400);
+            throw new \Exception(get_language('wrongtype'), 400);
         }
         
-        // 處理上傳檔案
-        $data = array();
-        if (move_uploaded_file($_FILES['fileupload']['tmp_name'], $uploadfile)) {
-            // 載入上傳檔案至PHPExcel
-            $helper = \yidas\phpSpreadsheet\Helper::newSpreadsheet($uploadfile);
-            unlink($uploadfile);
-            
-            // 取得原始資料
-            while ($row = $helper->getRow()) {
-                $data[] = $row;
-            }
-            
-            // 取得參數資料 - 設定檔參數
-            $helper->getSheet('ConfigSheet');
-            $config1 = $helper->getRow();
-            
-            // 取得參數資料 - 建構函式參數
-            $config2 = $helper->getRow();
-            
-            var_export($config1);
-            
-            exit;
-        } else {
-            throw new Exception('File Upload Failure !', 400);
-        }
+        // 處理上傳檔案 - 上傳檔案只讀取一次資料就棄用，應該不需要move_uploaded_file (2018-05-02)
+        $this->_builder->init($_FILES['fileupload']['tmp_name']);
         
-        return $data;
+        return $this;
     }
     
     

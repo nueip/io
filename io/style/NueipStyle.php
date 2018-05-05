@@ -216,6 +216,7 @@ class NueipStyle
             'font-bold' => true,//字體粗體
             'font-color' => 'white',//字體顏色
             'align-horizontal' => 'center', // 水平對齊
+            'border-all-color' => 'FFAAAAAA',//欄線顏色-全部
             'border-outline-style' => 'thick',//外圈欄線樣式
             'background-color' => 'FF0094D8',//儲存格背景顏色
         );
