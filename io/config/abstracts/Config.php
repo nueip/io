@@ -4,7 +4,11 @@ namespace app\libraries\io\config\abstracts;
 /**
  * NuEIP IO Add Insurance Config abstract
  *
- * 未使用
+ * 規則：
+ * 1. title,foot二種資料，一列一筆定義
+ * 2. content種類資料，多列一筆定義
+ * 3. 如果沒有設定title,foot定義，則不處理該種類資料
+ * 4. 如果沒有設定content定義，則傳入資料不做過濾
  *
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-18
  *        
@@ -14,14 +18,14 @@ abstract class Config
 
     /**
      * 設定檔參數
-     * 
+     *
      * @var array
      */
     protected $_options = array(
         'abstractVersion' => '0.1',
         'version' => '0.1',
         'configName' => __CLASS__,
-        'sheetName' => 'Worksheet',
+        'sheetName' => 'Worksheet'
     );
 
     /**
@@ -55,12 +59,7 @@ abstract class Config
     /**
      * 對映表儲存表 - 下拉選單用
      *
-     * $_listMap['目標鍵名'] = array(
-     * array(
-     * 'value' => '數值',
-     * 'text' => '數值名稱',
-     * ),
-     * );
+     * $_listMap['目標鍵名'] = array(array('value' => '數值','text' => '數值名稱'),.....);
      *
      * @var array
      */
@@ -84,7 +83,7 @@ abstract class Config
 
     /**
      * 喂給helper的欄位
-     * 
+     *
      * @var array
      */
     protected static $_helperField = array(
@@ -209,7 +208,7 @@ abstract class Config
      */
     public function getTemplate()
     {
-        if (empty($this->_foot)) {
+        if (empty($this->_dataTemplate)) {
             $this->templateDefined();
         }
         
@@ -219,6 +218,8 @@ abstract class Config
     /**
      * 取得對映表 - 下拉選單:值&文字
      *
+     * @param string $key
+     *            鍵名，不指定則傳回全部
      * @return array
      */
     public function getList($key = null)
@@ -332,31 +333,37 @@ abstract class Config
         
         return $this;
     }
-    
+
     /**
      * 設置設定檔參數 - 全部
      */
     public function setOptions(Array $options)
     {
-        $this->_options = $options;
+        $this->_options = array_intersect_key(array_merge($this->_options, $options), $this->_options);
         
         return $this;
     }
-    
+
     /**
      * 取得設定檔參數 - 單一
      *
      * @return array
      */
-    public function getOption($optionName)
+    public function getOption($optionName = null)
     {
-        if (!isset($this->_options[$optionName])) {
-            throw new \Exception('Donot have option: '.$optionName.' !', 404);
+        if (is_null($optionName)) {
+            // 未定鍵名 - 取得全部
+            return $this->$this->_options;
+        } else {
+            // 指定鍵名
+            if (! isset($this->_options[$optionName])) {
+                throw new \Exception('Donot have option: ' . $optionName . ' !', 404);
+            }
+            
+            return $this->_options[$optionName];
         }
-        
-        return $this->_options[$optionName];
     }
-    
+
     /**
      * 取得設定檔參數 - 全部
      *
@@ -366,23 +373,26 @@ abstract class Config
     {
         return $this->_options;
     }
-    
+
     /**
      * 版本檢查
-     * @param string $version 版本編號
+     *
+     * @param string $version
+     *            版本編號
      */
     public function checkVersion($version)
     {
         return $this->_options['version'] == $version;
     }
-    
+
     /**
      * 參數解析
-     * 
+     *
      * 解析來自參數工作表中讀到的參數 (依序還原Key)
      * 為本設定檔資料時，才回傳解析後的資料，否則回傳false
-     * 
-     * @param array $options 參數
+     *
+     * @param array $options
+     *            參數
      */
     public function optionParser(Array $options)
     {
@@ -396,7 +406,7 @@ abstract class Config
         $options = array_combine($optionKey, $options);
         
         // 為本設定檔資料時，才回傳解析後的資料，否則回傳false
-        return $this->_options['configName'] == $options['configName'] ? $options: false;
+        return $this->_options['configName'] == $options['configName'] ? $options : false;
     }
 
     /**
@@ -449,8 +459,10 @@ abstract class Config
         foreach ($data as $key => &$row) {
             $row = (array) $row;
             
-            // 以資料內容範本為模版過濾多餘資料
-            $row = array_intersect_key($row, $this->_dataTemplate);
+            // 以資料內容範本為模版過濾多餘資料 - 有設定才過濾
+            if (! empty($this->_dataTemplate)) {
+                $row = array_intersect_key($row, $this->_dataTemplate);
+            }
         }
         
         return $this;
@@ -458,10 +470,11 @@ abstract class Config
 
     /**
      * 匯入資料解析
-     * 
+     *
      * 將匯入的資料依資料範本給key，並做資料轉換 text=>value
-     * 
-     * @param array $data 匯入的原始資料
+     *
+     * @param array $data
+     *            匯入的原始資料
      * @return \app\libraries\io\config\abstracts\Config
      */
     public function contentParser(Array & $data)
@@ -484,13 +497,13 @@ abstract class Config
         
         return $this;
     }
-    
+
     /**
      * 執行資料轉換 value <=> text - 單筆資料
-     * 
+     *
      * 依照建構的對映表是value => text，還是text =>value決定轉換方向
      * 不管同名(text)問題
-     * 
+     *
      * @param string $key
      *            當次迴圈的Key值
      * @param array $row
@@ -509,7 +522,7 @@ abstract class Config
             $v = isset($this->_cache['valueTextMap'][$k][$v]) ? $this->_cache['valueTextMap'][$k][$v] : '';
         }
     }
-    
+
     /**
      * **************************************************
      * ************** Map Builder Function **************
@@ -556,7 +569,7 @@ abstract class Config
     protected function templateDefined()
     {
         $content = $this->getContent();
-        $defined = $content['defined'];
+        $defined = isset($content['defined']) ? $content['defined'] : array();
         $template = array();
         
         foreach ($defined as $key => $info) {
@@ -584,7 +597,7 @@ abstract class Config
             $def[$key] = array_intersect_key(array_merge(self::$_helperField, $info), self::$_helperField);
         }
     }
-    
+
     /**
      * **********************************************
      * ************** Abstract Function **************
@@ -593,9 +606,9 @@ abstract class Config
     
     /**
      * 內容整併處理時執行 - 迴圈內自定步驟
-     * 
+     *
      * 對內容整併時，需額外處理的欄位，不建議使用，應在原始資料傳入時就做好
-     * 
+     *
      * @param string $key
      *            當次迴圈的Key值
      * @param array $row
@@ -609,7 +622,41 @@ abstract class Config
     protected abstract function listMapInitialize();
 
     /**
-     * 標題定義函式
+     * 標題定義函式範例
+     *
+     * // 標題1
+     * $this->_title[] = array(
+     * 'config' => array(
+     * 'type' => 'title',
+     * 'name' => 'title1',
+     * 'style' => array(
+     * 'font-size' => '16'
+     * ),
+     * 'class' => 'title1'
+     * ),
+     * 'defined' => array(
+     * 't1' => array(
+     * 'key' => 't1',
+     * 'value' => get_language('id'), //'員工編號',
+     * 'col' => '1',
+     * 'row' => '1',
+     * 'style' => array(),
+     * 'class' => '',
+     * 'default' => '',
+     * 'list' => ''
+     * ),
+     * 't2' => array(
+     * 'key' => 't2',
+     * 'value' => get_language('name'), //'姓名',
+     * 'col' => '1',
+     * 'row' => '1',
+     * 'style' => array(),
+     * 'class' => '',
+     * 'default' => '',
+     * 'list' => ''
+     * )
+     * )
+     * );
      *
      * 單一標題定義可擁有單列資料，所以可定義多個標題定義
      */

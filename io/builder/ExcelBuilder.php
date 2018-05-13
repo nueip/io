@@ -4,6 +4,15 @@ namespace app\libraries\io\builder;
 /**
  * NuEIP IO Library
  *
+ * 規則：
+ * 1. 第一張表一定是參數工作表，名稱為ConfigSheet，並隱藏、鎖定
+ * 2. 參數工作表負責記錄excel各式參數，以供讀取分析用
+ * 3. 標題、結尾為一筆定義一列
+ * 4. 內容為一筆定義多列
+ *
+ * 樣式設定提要：
+ * 1. 欄位預設格式為文字，如需要對欄位格式變更，可在結構設定中指定特殊樣式
+ *
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
  *        
  */
@@ -12,11 +21,12 @@ class ExcelBuilder
 
     /**
      * 預設參數
-     * 
+     *
      * @var array
      */
     protected $_options = array(
-        'fileName' => 'export'
+        'fileName' => 'export',
+        'builderVersion' => '0.1'
     );
 
     /**
@@ -24,49 +34,51 @@ class ExcelBuilder
      *
      * @var array
      */
-    protected $_version = '0.1';
-
-    /**
-     * 資料
-     *
-     * @var array
-     */
-    protected $_data;
+    protected $_data = array();
 
     /**
      * 定義資料
      *
      * @var object
      */
-    protected $_config;
+    protected $_config = null;
 
     /**
      * Style定義資料
      *
      * @var object
      */
-    protected $_style;
+    protected $_style = null;
 
     /**
      * 下拉選單定義資料
-     *
-     * @var array $list[$key] = array('value' => '值', 'text' => '文字', 'type' => '資料類型');
+     * 
+     * @var array $_listMap['目標鍵名'] = array(array('value' => '數值','text' => '數值名稱'),.....);
      */
-    protected $_listMap;
+    protected $_listMap = array();
 
     /**
-     * 輸出暫存資料
+     * phpSpreadsheetHelper
      *
-     * @var object
+     * @var object \yidas\phpSpreadsheet\Helper
      */
-    protected $_builder;
+    protected $_builder = null;
 
     /**
      * 欄位座標參數表
      *
      * @var array
      */
-    protected $_offsetMap;
+    protected $_offsetMap = array();
+
+    /**
+     * 下拉選單結構位址
+     *
+     * 從下拉選單定義建構在ConfigSheet中的位址資料
+     *
+     * @var array
+     */
+    protected $_listAddrMap = array();
 
     /**
      * Construct
@@ -94,8 +106,8 @@ class ExcelBuilder
     /**
      * 初始化
      *
-     * @param array $options
-     *            參數
+     * @param object $phpSpreadsheet
+     *            Excel物件/檔案路徑
      */
     public function init($phpSpreadsheet = NULL)
     {
@@ -140,7 +152,7 @@ class ExcelBuilder
     /**
      * 載入結構定義
      *
-     * @param string $config
+     * @param object $config
      *            定義檔
      */
     public function setConfig($config)
@@ -155,7 +167,7 @@ class ExcelBuilder
     /**
      * 載入樣式定義
      *
-     * @param string $style
+     * @param object $style
      *            定義檔
      */
     public function setStyle($style)
@@ -178,7 +190,7 @@ class ExcelBuilder
 
     /**
      * 輸出資料 - 匯出成品
-     * 
+     *
      * @param string $name            
      */
     public function output($name = '')
@@ -205,7 +217,7 @@ class ExcelBuilder
     
     /**
      * 建構資料
-     * 
+     *
      * @return \app\libraries\io\builder\ExcelBuilder
      */
     public function build()
@@ -233,11 +245,19 @@ class ExcelBuilder
 
     /**
      * 參數工作表設定
+     *
+     * @param bool $inBuilder
+     *            是否在builder內部執行，預設true
      */
-    public function optionBuilder()
+    public function optionBuilder($inBuilder = true)
     {
-        // 第一張表更名為設工作表 ConfigSheet
-        $configSheet = $this->_builder->setSheet(0, 'ConfigSheet')->getSheet();
+        if ($inBuilder) {
+            // 第一張表更名為設工作表 ConfigSheet
+            $configSheet = $this->_builder->setSheet(0, 'ConfigSheet')->getSheet();
+        } else {
+            // 外部呼叫執行的
+            $configSheet = $this->_builder->getSheet('ConfigSheet', true);
+        }
         
         // ====== 參數工作表格式 ======
         // 保護工作表
@@ -255,14 +275,18 @@ class ExcelBuilder
         // ======
         
         // ====== 參數工作表內容 - 基本參數 ======
-        // 取得設定檔參數
-        $options = $this->_config->getOptions();
-        // 基本參數設定 - 第一列:設定檔參數、第二列:建構函式參數
-        $this->_builder->addRows([
-            $options,
-            $this->_options
-        ]);
+        if (is_object($this->_config)) {
+            // 取得設定檔參數
+            $options = $this->_config->getOptions();
+            // 基本參數設定 - 第一列:設定檔參數、第二列:建構函式參數
+            $this->_builder->addRows([
+                $options,
+                $this->_options
+            ]);
+        }
         // ======
+        
+        return $this;
     }
 
     /**
@@ -302,7 +326,9 @@ class ExcelBuilder
         }
         
         // 座標記錄 - 全標題
-        $this->offsetMapSet('title', 'all', $colStart, $rowStart, $colEnd, $rowEnd);
+        if ($rowEnd) {
+            $this->offsetMapSet('title', 'all', $colStart, $rowStart, $colEnd, $rowEnd);
+        }
     }
 
     /**
@@ -310,15 +336,17 @@ class ExcelBuilder
      */
     public function contentBuyilder()
     {
-        // 重整內容資料
-        $this->_rebuildContent();
-        
         // 取得定義資料
         $content = $this->_config->getContent();
         
+        if (!empty($content)) {
+            // 重整內容資料
+            $this->_rebuildContent();
+        }
+        
         // 起始座標
         $colStart = 'A';
-        $rowStart = $this->_builder->getSheet()->getHighestRow();
+        $rowStart = sizeof($this->_config->getTitle());
         $rowStart ++;
         // 結束座標 - 初始化
         $colEnd = 'A';
@@ -331,10 +359,12 @@ class ExcelBuilder
         $colEnd = $this->_builder->getSheet()->getHighestColumn();
         $rowEnd = $this->_builder->getSheet()->getHighestRow();
         
-        // 座標記錄 - 全內容 - 樣式
-        $this->offsetMapSet('content', $content, $colStart, $rowStart, $colEnd, $rowEnd);
-        // 座標記錄 - 全內容
-        $this->offsetMapSet('content', 'all', $colStart, $rowStart, $colEnd, $rowEnd);
+        if ($rowEnd) {
+            // 座標記錄 - 全內容 - 樣式
+            $this->offsetMapSet('content', $content, $colStart, $rowStart, $colEnd, $rowEnd);
+            // 座標記錄 - 全內容
+            $this->offsetMapSet('content', 'all', $colStart, $rowStart, $colEnd, $rowEnd);
+        }
     }
 
     /**
@@ -369,14 +399,18 @@ class ExcelBuilder
         }
         
         // 座標記錄 - 全結尾
-        $this->offsetMapSet('foot', 'all', $colStart, $rowStart, $colEnd, $rowEnd);
+        if ($rowEnd) {
+            $this->offsetMapSet('foot', 'all', $colStart, $rowStart, $colEnd, $rowEnd);
+        }
         
         // 結束座標
         $colEnd = $this->_builder->getSheet()->getHighestColumn();
         $rowEnd = $this->_builder->getSheet()->getHighestRow();
         
         // 座標記錄 - 全工作表
-        $this->offsetMapSet('sheet', 'all', $colStart, '1', $colEnd, $rowEnd);
+        if ($rowEnd) {
+            $this->offsetMapSet('sheet', 'all', $colStart, '1', $colEnd, $rowEnd);
+        }
     }
 
     /**
@@ -392,7 +426,6 @@ class ExcelBuilder
         // ====== 建立樣式-類型 ======
         // 建立Excel樣式 - 預設樣式
         $defaultStyle = $this->_style->getDefault();
-        $sheetRange = $this->offsetMap('sheet');
         \app\libraries\io\builder\ExcelStyleBuilder::setExcelDefaultStyle($defaultStyle, $spreadsheet);
         
         // 建立Excel樣式 - 標題樣式
@@ -450,78 +483,44 @@ class ExcelBuilder
     public function listBuilder()
     {
         // 記錄原工作表索引 - 取得下拉選單的目標工作表索引
-        $origSheet = $this->_builder->getSheet();
-        // 取得參數工作表
-        $configSheet = $this->_builder->getSheet('ConfigSheet');
+        $sheet = $this->_builder->getSheet();
         
         // ========== 建構下拉選單 ==========
         // 取得內容列數起訖
         $rowStart = $this->offsetMap('content', 'rowStart');
         $rowEnd = $this->offsetMap('content', 'rowEnd');
         
-        // 取得參數工作表目前列數
-        $csRow = $configSheet->getHighestRow();
-        
-        // 取得下拉選單設定
-        $listMap = $this->_listMap;
-        
         // 取得內容定義資料
         $content = $this->_config->getContent();
+        
+        // 沒有內容定義，不處理
+        if (empty($content)) {
+            return $this->_data;
+        }
+        
+        // 取得欄位定義
         $cDefined = array_column($content['defined'], 'value', 'key');
         
         // 遍歷資料範本 - 建構下拉選單值的資料表，並繫結到目標欄位
         foreach ($cDefined as $key => $colTitle) {
             // 跳過不處理的欄位
-            if (! isset($listMap[$key])) {
+            if (! isset($this->_listMap[$key])) {
                 continue;
             }
-            
-            // ====== 將下拉選單項目寫到參數工作表 ======
-            // 取得下拉選單項目定義資料
-            $listItem = array_column($listMap[$key], 'text');
-            // 將下拉選單名稱、下拉選單定義合併，名稱在第一欄
-            $listItem = array_merge(array(
-                $colTitle
-            ), $listItem);
-            // 將下拉選單項目寫到參數工作表
-            $this->_builder->setSheet($configSheet)
-                ->setRowOffset($csRow)
-                ->addRows([
-                $listItem
-            ]);
-            // 更新參數工作列數
-            $csRow = $configSheet->getHighestRow();
-            // 計算定義佔用的欄數，並取得該欄的代碼
-            $lastColCode = $this->_builder->num2alpha(sizeof($listItem));
-            // ======
             
             // ====== 將下拉選單繫結到目標工作表 ======
             // 取得資料Key對映的Excel欄位碼
             $colCode = $this->_builder->getColumnMap($key);
-            $this->_builder->setSheet($origSheet);
             // 遍歷目標欄位的各cell - 下拉選單需一cell一cell的繫結
             for ($i = $rowStart; $i <= $rowEnd; $i ++) {
-                $origSheet->getCell($colCode . $i)
-                    ->getDataValidation()
-                    ->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST)
-                    ->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION)
-                    ->setAllowBlank(false)
-                    ->setShowInputMessage(true)
-                    ->setShowErrorMessage(true)
-                    ->setShowDropDown(true)
-                    ->setErrorTitle('輸入的值有誤')
-                    ->setError('您輸入的值不在下拉框列表內.')
-                    ->setPromptTitle($colTitle)
-                    ->
-                // 把sheet名为mySheet2的A1，A2,A3作为选项
-                setFormula1($configSheet->getTitle() . '!$B$' . $csRow . ':$' . $lastColCode . '$' . $csRow);
+                // 對指定欄位建構下拉選單結構
+                $this->listSet($sheet, $key, $colCode . $i, $colTitle);
             }
             // ======
         }
         // ==========
         
-        // 回原工作表
-        $this->_builder->setSheet($origSheet);
+        return $this;
     }
 
     /**
@@ -532,7 +531,7 @@ class ExcelBuilder
     
     /**
      * 解析匯入資料並回傳
-     * 
+     *
      * @throws \Exception
      * @return \app\libraries\io\builder\ExcelBuilder
      */
@@ -563,7 +562,7 @@ class ExcelBuilder
         while ($row = $this->_builder->getRow()) {
             // 略過不要的資料 - 標題
             if ($titleRowNumber > 0) {
-                $titleRowNumber--;
+                $titleRowNumber --;
                 continue;
             }
             // 取得資料
@@ -676,6 +675,7 @@ class ExcelBuilder
         
         // 取得定義資料
         $content = $this->_config->getContent();
+        // 取得欄位定義
         $cDefined = $content['defined'];
         
         // 設定資料過濾，在喂給helper時不會有多餘的資料
@@ -708,6 +708,11 @@ class ExcelBuilder
      */
     protected function _configStyleBuilder($config, &$spreadsheet)
     {
+        // 格式錯誤，不處理
+        if (! isset($config['config'])) {
+            return $this;
+        }
+        
         // 設定資料類型
         $blockType = $config['config']['type'];
         
@@ -749,5 +754,98 @@ class ExcelBuilder
             // 設定Class樣式
             \app\libraries\io\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
         }
+    }
+
+    /**
+     * 將下拉選單資料建構成下拉選單結構資料表
+     */
+    protected function _listAddrMapBuilder()
+    {
+        // 記錄原工作表索引 - 取得下拉選單的目標工作表索引
+        $origSheet = $this->_builder->getSheet();
+        // 取得參數工作表
+        $configSheet = $this->_builder->getSheet('ConfigSheet');
+        
+        if (! $configSheet) {
+            // 找不到參數工作表 - 參數工作表設定
+            $this->optionBuilder($inBuilder = false);
+            // 取得參數工作表
+            $configSheet = $this->_builder->getSheet('ConfigSheet');
+        }
+        
+        // 取得參數工作表目前列數
+        $csRow = $configSheet->getHighestRow();
+        
+        // ====== 將下拉選單項目寫到參數工作表 ======
+        foreach ($this->_listMap as $key => $listDef) {
+            // 取得下拉選單項目定義資料
+            $listItem = array_column($listDef, 'text');
+            // 將下拉選單名稱、下拉選單定義合併，名稱在第一欄
+            $listItem = array_merge(array(
+                $key
+            ), $listItem);
+            // 將下拉選單項目寫到參數工作表
+            $this->_builder->setSheet($configSheet)
+                ->setRowOffset($csRow)
+                ->addRows([
+                $listItem
+            ]);
+            // 更新參數工作列數
+            $csRow = $configSheet->getHighestRow();
+            // 計算定義佔用的欄數，並取得該欄的代碼
+            $lastColCode = $this->_builder->num2alpha(sizeof($listItem));
+            
+            // 建立下拉選單結構位址
+            $this->_listAddrMap[$key] = $configSheet->getTitle() . '!$B$' . $csRow . ':$' . $lastColCode . '$' . $csRow;
+        }
+        // ======
+        
+        // 回原工作表
+        $this->_builder->setSheet($origSheet);
+        
+        return $this;
+    }
+
+    /**
+     * 對指定欄位建構下拉選單結構
+     *
+     * @param object $sheet
+     *            目標工作表物件
+     * @param string $listKey
+     *            下拉選單名稱
+     * @param string $cellLocation
+     *            欄位座標
+     * @param string $cellTitle
+     *            欄位名稱，可省略
+     */
+    public function listSet($sheet, $listKey, $cellLocation, $cellTitle = null)
+    {
+        // 如果沒有初始化下拉選單結構資料表，執行它
+        if (empty($this->_listAddrMap)) {
+            // 將下拉選單資料建構成下拉選單結構資料表
+            $this->_listAddrMapBuilder();
+        }
+        
+        // 參數設定 - 無標題時預設為key名稱
+        $cellTitle = is_string($cellTitle) ? $cellTitle : $listKey;
+        
+        // 有下拉選單結構時才處理
+        if (isset($this->_listAddrMap[$listKey])) {
+            // 對指定欄位建構下拉選單結構
+            $sheet->getCell($cellLocation)
+                ->getDataValidation()
+                ->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST)
+                ->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION)
+                ->setAllowBlank(false)
+                ->setShowInputMessage(true)
+                ->setShowErrorMessage(true)
+                ->setShowDropDown(true)
+                ->setErrorTitle('輸入的值有誤')
+                ->setError('您輸入的值不在下拉框列表內.')
+                ->setPromptTitle($cellTitle)
+                ->setFormula1($this->_listAddrMap[$listKey]);
+        }
+        
+        return $this;
     }
 }

@@ -52,7 +52,7 @@ class NueipIO
     /**
      * 下拉選單定義資料
      *
-     * @var array $list[$key] = array('value' => '值', 'text' => '文字', 'type' => '資料類型');
+     * @var array $_listMap['目標鍵名'] = array(array('value' => '數值','text' => '數值名稱'),.....);
      */
     protected $_listMap = array();
     
@@ -96,14 +96,14 @@ class NueipIO
      */
     public function export($data, $config, $builder = 'Excel', $style = 'Nueip')
     {
+        // 建立io物件
+        $this->setBuilder($builder);
+        
         // 載入資料
         $this->setData($data);
         
         // 載入定義檔
         $this->setConfig($config);
-        
-        // 建立io物件
-        $this->setBuilder($builder);
         
         // 載入Style定義
         $this->setStyle($style);
@@ -123,11 +123,11 @@ class NueipIO
      */
     public function import($config, $builder = 'Excel')
     {
-        // 載入定義檔
-        $this->setConfig($config);
-        
         // 建立io物件
         $this->setBuilder($builder);
+        
+        // 載入定義檔
+        $this->setConfig($config);
         
         // 取得上傳資料 - 將上傳檔載入IO建構物件
         $this->uploadFile2Builder();
@@ -154,7 +154,7 @@ class NueipIO
      *
      * @param string $data 資料
      */
-    public function setData($data)
+    protected function setData($data)
     {
         $this->_data = $data;
         return $this;
@@ -165,7 +165,7 @@ class NueipIO
      *
      * @param string $config 定義檔
      */
-    public function setConfig($config)
+    protected function setConfig($config)
     {
         $this->_config = \app\libraries\io\ConfigFactory::get($config);
         return $this;
@@ -176,7 +176,7 @@ class NueipIO
      *
      * @param string $style IO物件
      */
-    public function setStyle($style = 'Nueip')
+    protected function setStyle($style = 'Nueip')
     {
         $this->_style = \app\libraries\io\StyleFactory::get($style);
         return $this;
@@ -198,7 +198,7 @@ class NueipIO
      *
      * @param string $builder IO物件
      */
-    public function setBuilder($builder = 'excel')
+    protected function setBuilder($builder = 'excel')
     {
         $this->_builder = \app\libraries\io\BuilderFactory::get($builder);
         return $this;
@@ -221,7 +221,7 @@ class NueipIO
     /**
      * 匯出建構並輸出
      */
-    public function exportBuilder()
+    protected function exportBuilder()
     {
         // 載入參數
         $this->_builder->setOptions($this->_options);
@@ -244,7 +244,7 @@ class NueipIO
     /**
      * 匯入建構並回傳
      */
-    public function importParser()
+    protected function importParser()
     {
         // 載入參數
         $this->_builder->setOptions($this->_options);
