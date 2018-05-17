@@ -15,6 +15,16 @@ namespace app\libraries\io\style;
 class NueipStyle
 {
     /**
+     * 預設參數
+     *
+     * @var array
+     */
+    protected $_options = array(
+        'style' => 'nueip',
+        'styleVersion' => '0.1'
+    );
+    
+    /**
      * 通用樣式集 - 預設
      * @var array
      */

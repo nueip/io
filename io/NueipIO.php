@@ -7,6 +7,7 @@ namespace app\libraries\io;
  * 單一工作表IO
  *
  * @example 
+ *          // === 匯出 ===
  *          $this->load->library('tw_ins_management/Tw_ins_management_component');
  *         
  *          // get all data
@@ -18,6 +19,12 @@ namespace app\libraries\io;
  *          $io = new \app\libraries\io\NueipIO();
  *          $io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Nueip');
  *         
+ *          // === 匯入 ===
+ *          // IO物件建構
+ *          $io = new \app\libraries\io\NueipIO();
+ *          // 匯入處理 - 取得匯入資料
+ *          $data = $io->import($config = 'AddIns', $builder = 'Excel');
+ *       
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
  *        
  */
@@ -94,7 +101,7 @@ class NueipIO
      * 3.在 匯出處理+匯入處理 中，SQL層原始資料形成一個循環，是最初值，也是最終值
      * 
      */
-    public function export($data, $config, $builder = 'Excel', $style = 'Nueip')
+    public function export($data, $config = 'Empty', $builder = 'Excel', $style = 'Nueip')
     {
         // 建立io物件
         $this->setBuilder($builder);
@@ -121,7 +128,7 @@ class NueipIO
      * 
      * 改進可能：config名稱可存在參數工作表ConfigSheet中
      */
-    public function import($config, $builder = 'Excel')
+    public function import($config = 'Empty', $builder = 'Excel')
     {
         // 建立io物件
         $this->setBuilder($builder);

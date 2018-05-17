@@ -26,6 +26,7 @@ class ExcelBuilder
      */
     protected $_options = array(
         'fileName' => 'export',
+        'builder' => 'excel',
         'builderVersion' => '0.1'
     );
 
@@ -82,13 +83,15 @@ class ExcelBuilder
 
     /**
      * Construct
-     *
+     * 
+     * @param object $phpSpreadsheet
+     *            Excel物件/檔案路徑
      * @throws Exception
      */
-    public function __construct()
+    public function __construct($phpSpreadsheet = NULL)
     {
         // 初始化
-        $this->init();
+        $this->init($phpSpreadsheet);
     }
 
     /**
@@ -112,7 +115,13 @@ class ExcelBuilder
     public function init($phpSpreadsheet = NULL)
     {
         // 初始化
-        $this->_builder = \yidas\phpSpreadsheet\Helper::newSpreadsheet($phpSpreadsheet);
+        if (is_null(\yidas\phpSpreadsheet\Helper::getSpreadsheet()) || !is_null($phpSpreadsheet)) {
+            // 未初始化過、有傳入初始化目標 - 執行初始化
+            $this->_builder = \yidas\phpSpreadsheet\Helper::newSpreadsheet($phpSpreadsheet);
+        } else {
+            // 已初始化過 - 只取物件alias
+            $this->_builder = "\yidas\phpSpreadsheet\Helper";
+        }
         
         if (! $phpSpreadsheet) {
             // 新建Excel時才設定
@@ -479,6 +488,9 @@ class ExcelBuilder
 
     /**
      * 下拉選單建構
+     * 
+     * 1. 有內容定義時，使用內容定義處理下拉選單
+     * 2. 無內容定義時，使用傳入資料處理下拉選單
      */
     public function listBuilder()
     {
@@ -492,14 +504,15 @@ class ExcelBuilder
         
         // 取得內容定義資料
         $content = $this->_config->getContent();
-        
-        // 沒有內容定義，不處理
-        if (empty($content)) {
-            return $this->_data;
+        if (isset($content['defined']) && is_array($content['defined'])) {
+            // 有內容定義 - 取得欄位定義
+            $cDefined = array_column($content['defined'], 'value', 'key');
+        } else {
+            // 沒有內容定義，改用傳入資料陣列
+            $cDefined = array_column($this->_data, 'value', 'key');
         }
         
-        // 取得欄位定義
-        $cDefined = array_column($content['defined'], 'value', 'key');
+        
         
         // 遍歷資料範本 - 建構下拉選單值的資料表，並繫結到目標欄位
         foreach ($cDefined as $key => $colTitle) {

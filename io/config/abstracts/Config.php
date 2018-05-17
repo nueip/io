@@ -13,7 +13,7 @@ namespace app\libraries\io\config\abstracts;
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-18
  *        
  */
-abstract class Config
+abstract class Config extends \CI_Model
 {
 
     /**
@@ -27,13 +27,6 @@ abstract class Config
         'configName' => __CLASS__,
         'sheetName' => 'Worksheet'
     );
-
-    /**
-     * CodeIgniter Instance
-     *
-     * @var object
-     */
-    protected $CI;
 
     /**
      * 標題定義
@@ -124,9 +117,6 @@ abstract class Config
      */
     public function initialize()
     {
-        // ====== 初始化CI物件 ======
-        $this->CI = & get_instance();
-        
         // ====== 初始化定義 ======
         $this->_title = array();
         $this->_content = array();
@@ -439,7 +429,7 @@ abstract class Config
             $this->eachRefactor($key, $row);
             
             // 執行資料轉換 value <=> text - 單筆資料
-            $this->valueTextMap($key, $row);
+            $this->valueTextConv($key, $row);
         }
         
         return $this;
@@ -485,14 +475,18 @@ abstract class Config
         $templateSize = sizeof($this->_dataTemplate);
         $templateKey = array_keys($this->_dataTemplate);
         
-        foreach ($data as $key => &$row) {
-            $row = (array) $row;
-            
-            $row = array_slice($row, 0, $templateSize);
-            $row = array_combine($templateKey, $row);
-            
-            // 執行資料轉換 value <=> text - 單筆資料
-            $this->valueTextMap($key, $row);
+        // 有資料範本時，才解析
+        if ($templateSize) {
+            // 遍歷資料，並解析
+            foreach ($data as $key => &$row) {
+                $row = (array) $row;
+                
+                $row = array_slice($row, 0, $templateSize);
+                $row = array_combine($templateKey, $row);
+                
+                // 執行資料轉換 value <=> text - 單筆資料
+                $this->valueTextConv($key, $row);
+            }
         }
         
         return $this;
@@ -509,7 +503,7 @@ abstract class Config
      * @param array $row
      *            當次迴圈的內容
      */
-    public function valueTextMap($key, &$row)
+    public function valueTextConv($key, &$row)
     {
         // 遍歷資料，並轉換內容
         foreach ($row as $k => &$v) {

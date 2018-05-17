@@ -75,12 +75,12 @@ class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
      */
     protected function payrollMapBuilder()
     {
-        $this->CI->load->model('Payroll_item_model');
-        $conpanyID = $this->CI->config->item('Company');
+        $this->load->model('Payroll_item_model');
+        $conpanyID = $this->config->item('Company');
         
         // 取得一般科目資料
-        $this->CI->db->order_by('s_sort');
-        $pData = $this->CI->Payroll_item_model->getPayrollItem(null, $conpanyID, $col = 's_sn,item_name');
+        $this->db->order_by('s_sort');
+        $pData = $this->Payroll_item_model->getPayrollItem(null, $conpanyID, $col = 's_sn,item_name');
         
         // 資料整理
         $data = array();

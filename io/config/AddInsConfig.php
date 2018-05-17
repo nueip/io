@@ -104,8 +104,8 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
     protected function countryMapBuilder()
     {
         // 取得國家代碼表
-        $this->CI->load->library('Ins_data_component');
-        $cData = $this->CI->ins_data_component->countryCodeData();
+        $this->load->library('Ins_data_component');
+        $cData = $this->ins_data_component->countryCodeData();
         
         // 資料整理
         $data = array();
@@ -126,8 +126,8 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
     protected function insUnitMapBuilder()
     {
         // 取得投保單位
-        $this->CI->load->model('Ins_setting_tw_model');
-        $insUnit = $this->CI->Ins_setting_tw_model->find()
+        $this->load->model('Ins_setting_tw_model');
+        $insUnit = $this->Ins_setting_tw_model->find()
             ->select('s_sn,c_name,rate_company')
             ->get()
             ->result_array();
@@ -172,8 +172,8 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
     protected function disabilityMapBuilder()
     {
         // 取得規則資料
-        $this->CI->load->library('Ins_data_component');
-        $dData = $this->CI->ins_data_component->queryDetailByCode(4, 3, false, [
+        $this->load->library('Ins_data_component');
+        $dData = $this->ins_data_component->queryDetailByCode(4, 3, false, [
             'patch' => 1
         ])
             ->select('s_sn,value_4')
@@ -208,8 +208,8 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
     protected function assuredMapBuilder()
     {
         // 取得規則資料
-        $this->CI->load->library('Ins_data_component');
-        $aData = $query = $this->CI->ins_data_component->queryDetailByCode(2, 1)
+        $this->load->library('Ins_data_component');
+        $aData = $query = $this->ins_data_component->queryDetailByCode(2, 1)
             ->select('s_sn,value_4')
             ->order_by('s_sn', 'ASC')
             ->get()
@@ -291,8 +291,8 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
     protected function insCategoryMapBuilder()
     {
         // 取得規則資料
-        $this->CI->load->library('Ins_data_component');
-        $nhiCategory = $this->CI->ins_data_component->getNhiCategoryByDateRange('0000-00-00', '9999-12-31', array(
+        $this->load->library('Ins_data_component');
+        $nhiCategory = $this->ins_data_component->getNhiCategoryByDateRange('0000-00-00', '9999-12-31', array(
             's_sn',
             'start_date',
             'end_date',
@@ -324,8 +324,8 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
     protected function subsidyMapBuilder()
     {
         // 取得規則資料
-        $this->CI->load->library('Ins_data_component');
-        $nhiSubsidy = $this->CI->ins_data_component->queryDetailByCode(4, 13, false, [
+        $this->load->library('Ins_data_component');
+        $nhiSubsidy = $this->ins_data_component->queryDetailByCode(4, 13, false, [
             'patch' => 1
         ])
             ->select('s_sn,value_4')
@@ -366,16 +366,16 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
      */
     protected function levelMapBuilder($dateRangeStart = null, $dateRangeEnd = null)
     {
-        $this->CI->load->library('tw_ins_management/Tw_ins_management_component');
-        $this->CI->load->library('Dbfunctions');
+        $this->load->library('tw_ins_management/Tw_ins_management_component');
+        $this->load->library('Dbfunctions');
         
         // 時間處理
-        $today = $this->CI->dbfunctions->getTime_zone('', 'Y-m-d');
+        $today = $this->dbfunctions->getTime_zone('', 'Y-m-d');
         $dateRangeStart = is_null($dateRangeStart) ? $today : $dateRangeStart;
         $dateRangeEnd = is_null($dateRangeEnd) ? $today : $dateRangeEnd;
         
         // 對映表建構 - 勞保級距 - 使用參考日期區間
-        $data = $this->CI->tw_ins_level_adjust_component->laborLevelMapBuilder($dateRangeStart, $dateRangeEnd);
+        $data = $this->tw_ins_level_adjust_component->laborLevelMapBuilder($dateRangeStart, $dateRangeEnd);
         // 資料整理
         $tData = array();
         $lastEffectDate = '0000-00-00';
@@ -395,7 +395,7 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
         $this->_listMap['labor_salary'] = $tData[$lastEffectDate];
         
         // 對映表建構 - 勞退級距 - 使用參考日期區間
-        $data = $this->CI->tw_ins_level_adjust_component->pensionLevelMapBuilder($dateRangeStart, $dateRangeEnd);
+        $data = $this->tw_ins_level_adjust_component->pensionLevelMapBuilder($dateRangeStart, $dateRangeEnd);
         // 資料整理
         $tData = array();
         $lastEffectDate = '0000-00-00';
@@ -415,7 +415,7 @@ class AddInsConfig extends \app\libraries\io\config\abstracts\Config
         $this->_listMap['labor_retir_salary'] = $tData[$lastEffectDate];
         
         // 對映表建構 - 健保級距 - 使用參考日期區間
-        $data = $this->CI->tw_ins_level_adjust_component->nhiLevelMapBuilder($dateRangeStart, $dateRangeEnd);
+        $data = $this->tw_ins_level_adjust_component->nhiLevelMapBuilder($dateRangeStart, $dateRangeEnd);
         // 資料整理
         $tData = array();
         $lastEffectDate = '0000-00-00';
