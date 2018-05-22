@@ -551,7 +551,11 @@ class ExcelBuilder
     public function parse()
     {
         // 取得參數資料 - 設定檔參數
-        $this->_builder->getSheet('ConfigSheet');
+        $sheet = $this->_builder->getSheet('ConfigSheet');
+        if (is_null($sheet)) {
+            throw new \Exception('參數表錯誤', 404);
+        }
+        
         $config = $this->_builder->getRow();
         
         // 參數解析
