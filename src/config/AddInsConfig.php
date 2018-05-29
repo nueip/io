@@ -1,5 +1,5 @@
 <?php
-namespace app\libraries\io\config;
+namespace marshung\io\config;
 
 /**
  * NuEIP IO Add Insurance Config
@@ -15,7 +15,7 @@ namespace app\libraries\io\config;
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
  *        
  */
-class AddInsConfig extends \app\libraries\io\config\abstracts\Config
+class AddInsConfig extends \marshung\io\config\abstracts\Config
 {
 
     /**

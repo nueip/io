@@ -1,0 +1,17 @@
+{
+    "name": "marshung/io",
+    "description": "Import and Export Builder",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mars Hung",
+            "email": "tfaredxj@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "marshung\\": "src" }
+    },
+    "minimum-stability": "stable",
+    "require": {}
+}

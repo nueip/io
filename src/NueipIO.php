@@ -1,5 +1,5 @@
 <?php
-namespace app\libraries\io;
+namespace marshung\io;
 
 /**
  * NuEIP IO Library
@@ -16,12 +16,12 @@ namespace app\libraries\io;
  *          'iu_sn' => ''
  *          ]);
  *         
- *          $io = new \app\libraries\io\NueipIO();
+ *          $io = new \marshung\io\NueipIO();
  *          $io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Nueip');
  *         
  *          // === 匯入 ===
  *          // IO物件建構
- *          $io = new \app\libraries\io\NueipIO();
+ *          $io = new \marshung\io\NueipIO();
  *          // 匯入處理 - 取得匯入資料
  *          $data = $io->import($config = 'AddIns', $builder = 'Excel');
  *       
@@ -148,7 +148,7 @@ class NueipIO
      *
      * @param string $opName 參數名稱
      * @param string $opValue 參數值
-     * @return \app\libraries\io\NueipIO
+     * @return \marshung\io\NueipIO
      */
     public function setOption($opName, $opValue)
     {
@@ -174,7 +174,7 @@ class NueipIO
      */
     protected function setConfig($config)
     {
-        $this->_config = \app\libraries\io\ConfigFactory::get($config);
+        $this->_config = \marshung\io\ConfigFactory::get($config);
         return $this;
     }
     
@@ -185,7 +185,7 @@ class NueipIO
      */
     protected function setStyle($style = 'Nueip')
     {
-        $this->_style = \app\libraries\io\StyleFactory::get($style);
+        $this->_style = \marshung\io\StyleFactory::get($style);
         return $this;
     }
     
@@ -207,7 +207,7 @@ class NueipIO
      */
     protected function setBuilder($builder = 'excel')
     {
-        $this->_builder = \app\libraries\io\BuilderFactory::get($builder);
+        $this->_builder = \marshung\io\BuilderFactory::get($builder);
         return $this;
     }
     

@@ -1,5 +1,5 @@
 <?php
-namespace app\libraries\io\config;
+namespace marshung\io\config;
 
 /**
  * NuEIP IO Config - 空定義
@@ -7,7 +7,7 @@ namespace app\libraries\io\config;
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-05-15
  *        
  */
-class EmptyConfig extends \app\libraries\io\config\abstracts\Config
+class EmptyConfig extends \marshung\io\config\abstracts\Config
 {
 
     /**

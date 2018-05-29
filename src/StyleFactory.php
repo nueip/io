@@ -1,13 +1,13 @@
 <?php
-namespace app\libraries\io;
+namespace marshung\io;
 
 /**
  * NuEIP IO Library
  *
- * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
+ * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-23
  *        
  */
-class ConfigFactory
+class StyleFactory
 {
     
     /**
@@ -34,13 +34,13 @@ class ConfigFactory
     
     /**
      * 建構函式 - 工廠模式
-     * 
-     * @param string $category 設定檔類別名稱
+     *
+     * @param string $category 建構函式類別名稱
      * @return object
      */
     public static function get($name)
     {
-        $class = '\\'.__NAMESPACE__.'\\config\\'.$name.'Config';
+        $class = '\\'.__NAMESPACE__.'\\style\\'.$name.'Style';
         return new $class();
     }
 }

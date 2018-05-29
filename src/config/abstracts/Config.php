@@ -1,5 +1,5 @@
 <?php
-namespace app\libraries\io\config\abstracts;
+namespace marshung\io\config\abstracts;
 
 /**
  * NuEIP IO Add Insurance Config abstract
@@ -412,7 +412,7 @@ abstract class Config extends \CI_Model
      *
      * @param array $data
      *            原始資料內容
-     * @return \app\libraries\io\config\AddInsConfig
+     * @return \marshung\io\config\AddInsConfig
      */
     public function contentRefactor(Array & $data)
     {
@@ -442,7 +442,7 @@ abstract class Config extends \CI_Model
      *
      * @param array $data
      *            原始資料內容
-     * @return \app\libraries\io\config\AddInsConfig
+     * @return \marshung\io\config\AddInsConfig
      */
     public function contentFilter(Array & $data)
     {
@@ -465,7 +465,7 @@ abstract class Config extends \CI_Model
      *
      * @param array $data
      *            匯入的原始資料
-     * @return \app\libraries\io\config\abstracts\Config
+     * @return \marshung\io\config\abstracts\Config
      */
     public function contentParser(Array & $data)
     {

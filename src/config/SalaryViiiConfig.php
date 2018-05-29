@@ -1,5 +1,5 @@
 <?php
-namespace app\libraries\io\config;
+namespace marshung\io\config;
 
 /**
  * NuEIP IO Config - 薪資結算-步驟8非固定薪資匯入
@@ -15,7 +15,7 @@ namespace app\libraries\io\config;
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
  *        
  */
-class SalaryViiiConfig extends \app\libraries\io\config\abstracts\Config
+class SalaryViiiConfig extends \marshung\io\config\abstracts\Config
 {
 
     /**
