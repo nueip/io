@@ -293,19 +293,8 @@ class NueipIO
             throw new \Exception('File upload failed !', 400);
         }
         
-        // 檔案資料
-        $UploadFile_t = $_FILES['fileupload']['name'];
-        $UploadFile = substr($UploadFile_t, 0, strrpos($UploadFile_t, '.')); // 取得檔案名稱
-        $sub_name = substr($UploadFile_t, strrpos($UploadFile_t, '.') + 1, strlen($UploadFile_t) - strlen($UploadFile) + 1); // 取得副檔名名稱
-        $uploadfile = $UploadDir . basename(md5($UploadFile) . '.' . $sub_name);
-        
-        // 檔案檢查 - 副檔名
-        if ($sub_name != 'xls' && $sub_name != 'xlsx') {
-            throw new \Exception(get_language('wrongtype'), 400);
-        }
-        
         // 處理上傳檔案 - 上傳檔案只讀取一次資料就棄用，應該不需要move_uploaded_file (2018-05-02)
-        $this->_builder->init($_FILES['fileupload']['tmp_name']);
+        $this->_builder->loadFile($_FILES['fileupload']['tmp_name'], $_FILES['fileupload']['name']);
         
         return $this;
     }

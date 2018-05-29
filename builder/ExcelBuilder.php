@@ -133,6 +133,40 @@ class ExcelBuilder
         
         return $this;
     }
+    
+    /**
+     * 載入檔案
+     * 
+     * 此函式為匯入時載入檔案，需檢查傳入資料副檔名、格式，並使用phpSpreadsheet只讀資料模式
+     * 
+     * @param string $upFilePath 檔案路徑
+     */
+    public function loadFile($upFilePath, $upFileName)
+    {
+        // 檔案資料
+        $fileFullName = basename($upFileName);
+        // 取得檔案名稱、副檔名
+        $fileName = substr($fileFullName, 0, strrpos($fileFullName, '.')); 
+        $fileExt = strtolower(substr($fileFullName, strrpos($fileFullName, '.') + 1, strlen($fileFullName) - strlen($fileName) + 1));
+        
+        // 檔案檢查 - 副檔名
+        if (! in_array($fileExt, array('xlsx', 'xls'))) {
+            throw new \Exception(get_language('wrongtype'), 400);
+        }
+        
+        // 使用資料讀取模式取得$spreadsheet物件
+        /**  Identify the type of $inputFileName  **/
+        $fileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($upFilePath);
+        /**  Create a new Reader of the type that has been identified  **/
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($fileType);
+        /**  Advise the Reader that we only want to load cell data  **/
+        $reader->setReadDataOnly(true);
+        /**  Load $inputFileName to a Spreadsheet Object  **/
+        $spreadsheet = $reader->load($upFilePath);
+        
+        // 將$spreadsheet物件載入Helper
+        $this->init($spreadsheet);
+    }
 
     /**
      * 載入參數
