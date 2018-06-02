@@ -10,8 +10,10 @@
         }
     ],
     "autoload": {
-        "psr-4": { "marshung\\": "src" }
+        "psr-4": { "marshung\\io\\": "src" }
     },
     "minimum-stability": "stable",
-    "require": {}
+    "require": {
+        "yidas/phpspreadsheet-helper": "^1.0"
+    }
 }
