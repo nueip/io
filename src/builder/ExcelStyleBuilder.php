@@ -2,7 +2,7 @@
 namespace marshung\io\builder;
 
 /**
- * NuEIP IO Library
+ * 格式處理總成物件-樣式建構
  *
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
  *        

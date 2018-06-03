@@ -2,7 +2,7 @@
 namespace marshung\io\config;
 
 /**
- * NuEIP IO Add Insurance Config
+ * 勞健保-批次加保範本
  *
  * 單一工作表版本
  *

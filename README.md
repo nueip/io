@@ -6,7 +6,7 @@
 
 # 用法
 ```
-$io = new \app\libraries\io\NueipIO();
+$io = new \app\libraries\io\IO();
 $io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Nueip');
 
 // === 匯入 ===

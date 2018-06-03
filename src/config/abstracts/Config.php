@@ -2,7 +2,7 @@
 namespace marshung\io\config\abstracts;
 
 /**
- * NuEIP IO Add Insurance Config abstract
+ * IO Add Insurance Config abstract
  *
  * 規則：
  * 1. title,foot二種資料，一列一筆定義
@@ -145,6 +145,26 @@ abstract class Config extends \CI_Model
      */
     
     /**
+     * 取得設定檔參數
+     *
+     * @return array
+     */
+    public function getOption($optionName = null)
+    {
+        if (is_null($optionName)) {
+            // 未定鍵名 - 取得全部
+            return $this->_options;
+        } else {
+            // 指定鍵名
+            if (! isset($this->_options[$optionName])) {
+                throw new \Exception('Donot have option: ' . $optionName . ' !', 404);
+            }
+            
+            return $this->_options[$optionName];
+        }
+    }
+
+    /**
      * 取得標題定義
      *
      * @return array
@@ -187,6 +207,62 @@ abstract class Config extends \CI_Model
     }
 
     /**
+     * 取得設定格式範本 - 鍵值表及預設值
+     *
+     * 如需動態設定預設值時，需取出本表修改後回寫
+     *
+     * 取得：無參數時
+     * 設定：有參數時
+     *
+     * @return array
+     */
+    public function getConfTemplate()
+    {
+        return array(
+            'config' => array(
+                'name' => '結構名稱',
+                'style' => array(
+                    '結構自定樣式集'
+                ),
+                'class' => '結構自定樣式名'
+            ),
+            'defined' => array(
+                '$key' => array(
+                    'key' => '鍵名',
+                    'value' => '(在結構設定中，此值為該欄位名稱)',
+                    'desc' => '說明',
+                    'col' => '1',
+                    'row' => '1',
+                    'style' => array(),
+                    'class' => '',
+                    'default' => '預設值',
+                    'list' => '下拉選單名'
+                )
+            )
+        );
+    }
+
+    /**
+     * 取得選單對映範本 - 鍵值表及預設值
+     *
+     * 如需動態設定預設值時，需取出本表修改後回寫
+     *
+     * 取得：無參數時
+     * 設定：有參數時
+     *
+     * @return array
+     */
+    public function getListTemplate()
+    {
+        return array(
+            '$key' => array(
+                'value' => '數值',
+                'text' => '數值名稱'
+            )
+        );
+    }
+
+    /**
      * 取得資料範本 - 鍵值表及預設值
      *
      * 如需動態設定預設值時，需取出本表修改後回寫
@@ -196,7 +272,7 @@ abstract class Config extends \CI_Model
      *
      * @return array
      */
-    public function getTemplate()
+    public function getDataTemplate()
     {
         if (empty($this->_dataTemplate)) {
             $this->templateDefined();
@@ -233,6 +309,16 @@ abstract class Config extends \CI_Model
      */
     
     /**
+     * 設置設定檔參數
+     */
+    public function setOption($optionName, $option)
+    {
+        $this->_options[$optionName] = $option;
+        
+        return $this;
+    }
+
+    /**
      * 設定標題定義
      *
      * @return array
@@ -257,8 +343,12 @@ abstract class Config extends \CI_Model
     {
         if (! is_null($data)) {
             $this->_content = $data;
+            // 設定資料範本 - 鍵值表及預設值
+            $this->templateDefined();
         } elseif (empty($this->_content)) {
             $this->contentDefined();
+            // 設定資料範本 - 鍵值表及預設值
+            $this->templateDefined();
         }
         
         return $this;
@@ -305,7 +395,9 @@ abstract class Config extends \CI_Model
      */
     public function setList($key, $mapData)
     {
-        return $this->_listMap;
+        $this->_listMap[$key] = $mapData;
+        
+        return $this;
     }
 
     /**
@@ -314,56 +406,6 @@ abstract class Config extends \CI_Model
      * **********************************************
      */
     
-    /**
-     * 設置設定檔參數 - 單一
-     */
-    public function setOption($optionName, $option)
-    {
-        $this->_options[$optionName] = $option;
-        
-        return $this;
-    }
-
-    /**
-     * 設置設定檔參數 - 全部
-     */
-    public function setOptions(Array $options)
-    {
-        $this->_options = array_intersect_key(array_merge($this->_options, $options), $this->_options);
-        
-        return $this;
-    }
-
-    /**
-     * 取得設定檔參數 - 單一
-     *
-     * @return array
-     */
-    public function getOption($optionName = null)
-    {
-        if (is_null($optionName)) {
-            // 未定鍵名 - 取得全部
-            return $this->$this->_options;
-        } else {
-            // 指定鍵名
-            if (! isset($this->_options[$optionName])) {
-                throw new \Exception('Donot have option: ' . $optionName . ' !', 404);
-            }
-            
-            return $this->_options[$optionName];
-        }
-    }
-
-    /**
-     * 取得設定檔參數 - 全部
-     *
-     * @return array
-     */
-    public function getOptions()
-    {
-        return $this->_options;
-    }
-
     /**
      * 版本檢查
      *

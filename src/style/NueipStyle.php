@@ -2,18 +2,19 @@
 /**
  * 參考 Attendance_record_model.php
  */
-
-
 namespace marshung\io\style;
 
 /**
- * NuEIP IO Sheet Library
+ * 樣式定義物件
+ *
+ * 為NuEIP Excel樣式風格定義的物件
  *
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-23
  *        
  */
 class NueipStyle
 {
+
     /**
      * 預設參數
      *
@@ -23,70 +24,26 @@ class NueipStyle
         'style' => 'nueip',
         'styleVersion' => '0.1'
     );
-    
+
     /**
-     * 通用樣式集 - 預設
-     * @var array
-     */
-    protected $_defaultStyle = array();
-    
-    /**
-     * 通用樣式集 - 標題 
-     * @var array
-     */
-    protected $_titleStyle = array();
-    
-    /**
-     * 通用樣式集 - 內容
-     * @var array
-     */
-    protected $_contentStyle = array();
-    
-    /**
-     * 通用樣式集 - 結尾
-     * @var array
-     */
-    protected $_footStyle = array();
-    
-    /**
-     * 通用樣式集 - 列
-     * @var array
-     */
-    protected $_rowStyle= array();
-    
-    /**
-     * 通用樣式集 - 欄
-     * @var array
-     */
-    protected $_colStyle= array();
-    
-    /**
-     * 通用樣式集 - 座標
-     * @var array
-     */
-    protected $_coorStyle= array();
-    
-    /**
-     * 設定檔樣式集 - 設定成名稱，讓格式定義的屬性class取用
-     * @var array
+     * 樣式集 - 設定成名稱，讓格式定義的屬性class取用
+     *
+     * @var array $_classMap[$key] = $style;
      */
     protected $_classMap = array();
-    
-    
+
     /**
      * 凍結欄位
-     * 
+     *
      * 如果有凍結，會動略過上方標題列，從第一個內容開始，所以只要指定欄位
      * 不凍結(null)、欄位名稱，預設值：無
-     * 
+     *
      * @var array
      */
     protected $_freeze = '';
-    
+
     protected $_hide = array();
-    
-    
-    
+
     /**
      * Construct
      *
@@ -96,9 +53,6 @@ class NueipStyle
     {
         // 初始化 - 預設樣式
         $this->initDefault();
-        
-        // 初始化 - 樣式集
-        $this->classMap();
     }
 
     /**
@@ -115,60 +69,73 @@ class NueipStyle
     
     /**
      * 取得樣式 - 預設
+     *
      * @return array
      */
     public function getDefault()
     {
-        return $this->_defaultStyle;
+        return $this->_classMap['default'];
     }
-    
+
     /**
      * 取得樣式 - 預設
+     *
      * @return array
      */
     public function getTitle()
     {
-        return $this->_titleStyle;
+        return $this->_classMap['title'];
     }
-    
+
     /**
      * 取得樣式 - 預設
+     *
      * @return array
      */
     public function getContent()
     {
-        return $this->_contentStyle;
+        return $this->_classMap['content'];
     }
-    
+
     /**
      * 取得樣式 - 預設
+     *
      * @return array
      */
     public function getFoot()
     {
-        return $this->_footStyle;
+        return $this->_classMap['foot'];
     }
 
-    
-    
+    /**
+     * 取得樣式集
+     *
+     * @param string $className
+     *            樣式集名稱
+     */
+    public function getClass($className)
+    {
+        return isset($this->_classMap[$className]) ? $this->_classMap[$className] : array();
+    }
+
+    /**
+     * 取得可用樣式集清單
+     */
+    public function getClassList()
+    {
+        return array_keys($this->_classMap);
+    }
+
     /**
      * 取得樣式 - 凍結欄位
+     *
      * @return array
      */
     public function getFreeze()
     {
         return $this->_freeze;
     }
-    
-    /**
-     * 取得樣式集
-     * 
-     * @param string $className 樣式集名稱
-     */
-    public function getClass($className)
-    {
-        return isset($this->_classMap[$className]) ? $this->_classMap[$className] : array();
-    }
+
     /**
      * **********************************************
      * ************** Private Function **************
@@ -207,7 +174,8 @@ class NueipStyle
      */
     protected function initDefault()
     {
-        $this->_defaultStyle = array(
+        // 預設-全域樣式集
+        $this->_classMap['default'] = array(
             'width' => 20.71, // 儲存格欄寬
             'height' => - 1, // 儲存格欄高(-1為自動高度)
             'format' => 'text', // 儲存格格式-文字
@@ -216,44 +184,42 @@ class NueipStyle
             'font-size' => 11, // 字體大小
             'font-color' => 'black', // 字體顏色
             'align-vertical' => 'center', // 垂直對齊
-            'border-all-style' => 'thin',//欄線樣式-全部
-            'border-all-color' => 'FF9F9FA0',//欄線顏色-全部
+            'border-all-style' => 'thin', // 欄線樣式-全部
+            'border-all-color' => 'FF9F9FA0' // 欄線顏色-全部
         );
         
-        $this->_titleStyle = array(
-//             'height' => 28.5,//儲存格欄高
-            'font-size' => 12,//字體大小
-            'font-bold' => true,//字體粗體
-            'font-color' => 'white',//字體顏色
+        // 預設-標題樣式集
+        $this->_classMap['title'] = array(
+            // 'height' => 28.5,//儲存格欄高
+            'font-size' => 12, // 字體大小
+            'font-bold' => true, // 字體粗體
+            'font-color' => 'white', // 字體顏色
             'align-horizontal' => 'center', // 水平對齊
-            'border-all-color' => 'FFAAAAAA',//欄線顏色-全部
-            'border-outline-style' => 'thick',//外圈欄線樣式
-            'background-color' => 'FF0094D8',//儲存格背景顏色
+            'border-all-color' => 'FFAAAAAA', // 欄線顏色-全部
+            'border-outline-style' => 'thick', // 外圈欄線樣式
+            'background-color' => 'FF0094D8' // 儲存格背景顏色
         );
         
-        $this->_contentStyle = array(
-            'border-all-color' => 'FFAAAAAA',//欄線顏色-全部
-            'border-outline-style' => 'thick',//外圈欄線樣式
-//             'row-odd-background-color' => 'F7F7F7',//內容奇數列背景顏色
-//             'row-even-background-color' => 'white'//內容偶數列背景顏色
+        // 預設-內容樣式集
+        $this->_classMap['content'] = array(
+            'border-all-color' => 'FFAAAAAA', // 欄線顏色-全部
+            'border-outline-style' => 'thick' // 外圈欄線樣式
+                                                  // 'row-odd-background-color' => 'F7F7F7',//內容奇數列背景顏色
+                                                  // 'row-even-background-color' => 'white'//內容偶數列背景顏色
         );
         
-        $this->_footStyle = array(
-            'font-color' => 'white',//字體顏色
-            'background-color' => 'FFA0A0A2',//儲存格背景顏色
-            'align-horizontal' => 'left', // 水平對齊
+        // 預設-結尾樣式集
+        $this->_classMap['foot'] = array(
+            'font-color' => 'white', // 字體顏色
+            'background-color' => 'FFA0A0A2', // 儲存格背景顏色
+            'align-horizontal' => 'left' // 水平對齊
         );
-    }
-    /**
-     * 初始化 - 預設樣式
-     */
-    protected function classMap()
-    {
+        
+        // 預設-範例樣式集
         $this->_classMap['example'] = array(
-            'font-color' => 'black',//字體顏色
-            'font-bold' => false,//字體粗體
-            'background-color' => 'FFDBDCDC'//儲存格背景顏色
+            'font-color' => 'black', // 字體顏色
+            'font-bold' => false, // 字體粗體
+            'background-color' => 'FFDBDCDC' // 儲存格背景顏色
         );
     }
-    
 }

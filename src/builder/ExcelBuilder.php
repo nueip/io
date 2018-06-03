@@ -2,7 +2,7 @@
 namespace marshung\io\builder;
 
 /**
- * NuEIP IO Library
+ * 格式處理總成物件
  *
  * 規則：
  * 1. 第一張表一定是參數工作表，名稱為ConfigSheet，並隱藏、鎖定
@@ -53,7 +53,7 @@ class ExcelBuilder
 
     /**
      * 下拉選單定義資料
-     * 
+     *
      * @var array $_listMap['目標鍵名'] = array(array('value' => '數值','text' => '數值名稱'),.....);
      */
     protected $_listMap = array();
@@ -83,7 +83,7 @@ class ExcelBuilder
 
     /**
      * Construct
-     * 
+     *
      * @param object $phpSpreadsheet
      *            Excel物件/檔案路徑
      * @throws Exception
@@ -115,7 +115,7 @@ class ExcelBuilder
     public function init($phpSpreadsheet = NULL)
     {
         // 初始化
-        if (is_null(\yidas\phpSpreadsheet\Helper::getSpreadsheet()) || !is_null($phpSpreadsheet)) {
+        if (is_null(\yidas\phpSpreadsheet\Helper::getSpreadsheet()) || ! is_null($phpSpreadsheet)) {
             // 未初始化過、有傳入初始化目標 - 執行初始化
             $this->_builder = \yidas\phpSpreadsheet\Helper::newSpreadsheet($phpSpreadsheet);
         } else {
@@ -127,41 +127,52 @@ class ExcelBuilder
             // 新建Excel時才設定
             $this->_builder->getSpreadsheet()
                 ->getProperties()
-                ->setCreator("NuEIP")
                 ->setTitle("Office 2007 XLSX Document");
         }
         
         return $this;
     }
-    
+
     /**
      * 載入檔案
-     * 
+     *
      * 此函式為匯入時載入檔案，需檢查傳入資料副檔名、格式，並使用phpSpreadsheet只讀資料模式
-     * 
-     * @param string $upFilePath 檔案路徑
+     *
+     * @param string $upFilePath
+     *            檔案路徑
      */
     public function loadFile($upFilePath, $upFileName)
     {
         // 檔案資料
         $fileFullName = basename($upFileName);
         // 取得檔案名稱、副檔名
-        $fileName = substr($fileFullName, 0, strrpos($fileFullName, '.')); 
+        $fileName = substr($fileFullName, 0, strrpos($fileFullName, '.'));
         $fileExt = strtolower(substr($fileFullName, strrpos($fileFullName, '.') + 1, strlen($fileFullName) - strlen($fileName) + 1));
         
         // 檔案檢查 - 副檔名
-        if (! in_array($fileExt, array('xlsx', 'xls'))) {
+        if (! in_array($fileExt, array(
+            'xlsx',
+            'xls'
+        ))) {
             throw new \Exception(get_language('wrongtype'), 400);
         }
         
         // 使用資料讀取模式取得$spreadsheet物件
-        /**  Identify the type of $inputFileName  **/
+        /**
+         * Identify the type of $inputFileName *
+         */
         $fileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($upFilePath);
-        /**  Create a new Reader of the type that has been identified  **/
+        /**
+         * Create a new Reader of the type that has been identified *
+         */
         $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($fileType);
-        /**  Advise the Reader that we only want to load cell data  **/
+        /**
+         * Advise the Reader that we only want to load cell data *
+         */
         $reader->setReadDataOnly(true);
-        /**  Load $inputFileName to a Spreadsheet Object  **/
+        /**
+         * Load $inputFileName to a Spreadsheet Object *
+         */
         $spreadsheet = $reader->load($upFilePath);
         
         // 將$spreadsheet物件載入Helper
@@ -320,7 +331,7 @@ class ExcelBuilder
         // ====== 參數工作表內容 - 基本參數 ======
         if (is_object($this->_config)) {
             // 取得設定檔參數
-            $options = $this->_config->getOptions();
+            $options = $this->_config->getOption();
             // 基本參數設定 - 第一列:設定檔參數、第二列:建構函式參數
             $this->_builder->addRows([
                 $options,
@@ -382,7 +393,7 @@ class ExcelBuilder
         // 取得定義資料
         $content = $this->_config->getContent();
         
-        if (!empty($content)) {
+        if (! empty($content)) {
             // 重整內容資料
             $this->_rebuildContent();
         }
@@ -522,7 +533,7 @@ class ExcelBuilder
 
     /**
      * 下拉選單建構
-     * 
+     *
      * 1. 有內容定義時，使用內容定義處理下拉選單
      * 2. 無內容定義時，使用傳入資料處理下拉選單
      */
@@ -545,8 +556,6 @@ class ExcelBuilder
             // 沒有內容定義，改用傳入資料陣列
             $cDefined = array_column($this->_data, 'value', 'key');
         }
-        
-        
         
         // 遍歷資料範本 - 建構下拉選單值的資料表，並繫結到目標欄位
         foreach ($cDefined as $key => $colTitle) {

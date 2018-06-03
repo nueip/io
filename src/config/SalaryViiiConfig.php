@@ -2,7 +2,7 @@
 namespace marshung\io\config;
 
 /**
- * NuEIP IO Config - 薪資結算-步驟8非固定薪資匯入
+ * 薪資結算-步驟8非固定薪資匯入
  *
  * 單一工作表版本
  *

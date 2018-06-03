@@ -2,7 +2,7 @@
 namespace marshung\io\config;
 
 /**
- * NuEIP IO Config - 空定義
+ * 空定義
  *
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-05-15
  *        
