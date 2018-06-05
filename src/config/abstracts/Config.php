@@ -227,7 +227,7 @@ abstract class Config extends \CI_Model
                 'class' => '結構自定樣式名'
             ),
             'defined' => array(
-                '$key' => array(
+                'key' => array(
                     'key' => '鍵名',
                     'value' => '(在結構設定中，此值為該欄位名稱)',
                     'desc' => '說明',
@@ -321,12 +321,23 @@ abstract class Config extends \CI_Model
     /**
      * 設定標題定義
      *
-     * @return array
+     * @param array $data 格式定義
+     * @param array $style 樣式集
+     * @param string $class 樣式集名稱
+     * @return \marshung\io\config\abstracts\Config
      */
-    public function setTitle($data = null)
+    public function setTitle($data = null, $style = array(), $class = '')
     {
-        if (! is_null($data)) {
-            $this->_title = $data;
+        if (! is_null($data) && is_array($data)) {
+            $this->_title = array(
+                'config' => array(
+                    'type' => 'title',
+                    'name' => 'title',
+                    'style' => $style,
+                    'class' => $class
+                ),
+                'defined' => $data
+            );
         } elseif (empty($this->_title)) {
             $this->titleDefined();
         }
@@ -337,12 +348,23 @@ abstract class Config extends \CI_Model
     /**
      * 設定內容定義
      *
-     * @return array
+     * @param array $data 格式定義
+     * @param array $style 樣式集
+     * @param string $class 樣式集名稱
+     * @return \marshung\io\config\abstracts\Config
      */
-    public function setContent($data = null)
+    public function setContent($data = null, $style = array(), $class = '')
     {
-        if (! is_null($data)) {
-            $this->_content = $data;
+        if (! is_null($data) && is_array($data)) {
+            $this->_content = array(
+                'config' => array(
+                    'type' => 'content',
+                    'name' => 'content',
+                    'style' => $style,
+                    'class' => $class
+                ),
+                'defined' => $data
+            );
             // 設定資料範本 - 鍵值表及預設值
             $this->templateDefined();
         } elseif (empty($this->_content)) {
@@ -357,12 +379,23 @@ abstract class Config extends \CI_Model
     /**
      * 設定結尾定義
      *
-     * @return array
+     * @param array $data 格式定義
+     * @param array $style 樣式集
+     * @param string $class 樣式集名稱
+     * @return \marshung\io\config\abstracts\Config
      */
-    public function setFoot($data = null)
+    public function setFoot($data = null, $style = array(), $class = '')
     {
-        if (! is_null($data)) {
-            $this->_foot = $data;
+        if (! is_null($data) && is_array($data)) {
+            $this->_foot = array(
+                'config' => array(
+                    'type' => 'foot',
+                    'name' => 'foot',
+                    'style' => $style,
+                    'class' => $class
+                ),
+                'defined' => $data
+            );
         } elseif (empty($this->_foot)) {
             $this->footDefined();
         }
@@ -628,6 +661,10 @@ abstract class Config extends \CI_Model
             $def = & $defined;
         }
         
+        var_export($defined);
+        var_export($def);
+        
+        exit;
         // 資料重整
         foreach ($def as $key => $info) {
             $def[$key] = array_intersect_key(array_merge(self::$_helperField, $info), self::$_helperField);
@@ -660,7 +697,7 @@ abstract class Config extends \CI_Model
     /**
      * 標題定義函式範例
      *
-     * // 標題1
+     * // 結構一 - 標題1
      * $this->_title[] = array(
      * 'config' => array(
      * 'type' => 'title',
@@ -691,6 +728,25 @@ abstract class Config extends \CI_Model
      * 'default' => '',
      * 'list' => ''
      * )
+     * )
+     * );
+     *
+     * 結構二 - 標題1
+     * $this->_title[] = array(
+     * 'config' => array(
+     * 'type' => '結構名稱',
+     * 'name' => '結構名稱',
+     * 'style' => array('結構自定樣式集'),
+     * 'class' => '結構自定樣式名',
+     * ),
+     * 'defined' => array(
+     * 'u_no' => '編號',
+     * 'c_name' => '姓名',
+     * 'id_no' => '身分證字號',
+     * 'birthday' => '出生年月日',
+     * 'u_country' => '國別',
+     * :
+     * :
      * )
      * );
      *
