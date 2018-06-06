@@ -366,9 +366,11 @@ class ExcelBuilder
             // 設定資料過濾，在喂給helper時不會有多餘的資料
             $this->_config->definedFilter($tRow);
             
+            $rowData = $this->_config->getRowFromDefined($tRow);
+            
             // 寫入標題資料至excel
             $this->_builder->addRows([
-                $tRow['defined']
+                $rowData
             ]);
             
             // 取得本次結束座標
@@ -438,10 +440,11 @@ class ExcelBuilder
         foreach ($this->_config->getFoot() as $key => $fRow) {
             // 設定資料過濾，在喂給helper時不會有多餘的資料
             $this->_config->definedFilter($fRow);
+            $rowData = $this->_config->getRowFromDefined($fRow);
             
             // 寫入標題資料至excel
             $this->_builder->addRows([
-                $fRow['defined']
+                $rowData
             ]);
             
             // 取得本次結束座標
@@ -658,7 +661,7 @@ class ExcelBuilder
      * @param string $content
      *            座標格式類型 colStart,rowStart,colEnd,rowEnd,range
      * @param string $configName
-     *            定義名稱 取全域$type資料時，值為null
+     *            定義名稱 取全域$type資料時，值為null，結構定義物件使用複雜模式才有
      */
     public function offsetMap($type, $content = 'range', $configName = null)
     {
@@ -709,7 +712,7 @@ class ExcelBuilder
             // 全域定義種類
             $this->_offsetMap[$type]['all'] = $conf;
         } else {
-            // 子定義種類
+            // 子定義種類 - 結構定義物件複雜模式才有
             $conf['configName'] = $configName = isset($config['config']['name']) ? $config['config']['name'] : '';
             // 檢查定義名稱是否重複
             if (isset($this->_offsetMap[$type]['detail'][$configName])) {
@@ -735,26 +738,27 @@ class ExcelBuilder
         
         // 取得定義資料
         $content = $this->_config->getContent();
-        // 取得欄位定義
-        $cDefined = $content['defined'];
         
         // 設定資料過濾，在喂給helper時不會有多餘的資料
-        $this->_config->definedFilter($cDefined);
-        
-        // 重建索引 - 依Key
-        \nueip\helpers\ArrayHelper::indexBy($cDefined, 'key');
+        $this->_config->definedFilter($content);
+        $rowData = $this->_config->getRowFromDefined($content);
         
         // 整理資料 - 依欄位設定
         $tmpData = array();
         foreach ($this->_data as $k => $row) {
             // 重寫欄位定義的value - 保持定義格式
             foreach ($row as $key => $col) {
-                if (isset($cDefined[$key])) {
-                    $cDefined[$key]['value'] = $col;
+                if (isset($rowData[$key])) {
+                    if (isset($rowData[$key]['value'])) {
+                        // 模式：複雜(complex)
+                        $rowData[$key]['value'] = $col;
+                    } else {
+                        // 模式：簡易(simple)
+                        $rowData[$key] = $col;
+                    }
                 }
             }
-            
-            $tmpData[$k] = $cDefined;
+            $tmpData[$k] = $rowData;
         }
         
         // 回寫
@@ -768,7 +772,7 @@ class ExcelBuilder
      */
     protected function _configStyleBuilder($config, &$spreadsheet)
     {
-        // 格式錯誤，不處理
+        // 簡易模式，不處理
         if (! isset($config['config'])) {
             return $this;
         }

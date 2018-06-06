@@ -25,7 +25,9 @@ abstract class Config extends \CI_Model
         'abstractVersion' => '0.1',
         'version' => '0.1',
         'configName' => __CLASS__,
-        'sheetName' => 'Worksheet'
+        'sheetName' => 'Worksheet',
+        // 模式：簡易(simple)、複雜(complex)
+        'type' => 'simple'
     );
 
     /**
@@ -79,7 +81,7 @@ abstract class Config extends \CI_Model
      *
      * @var array
      */
-    protected static $_helperField = array(
+    protected $_helperField = array(
         'key' => '',
         'value' => '',
         'col' => '1',
@@ -218,28 +220,42 @@ abstract class Config extends \CI_Model
      */
     public function getConfTemplate()
     {
-        return array(
-            'config' => array(
-                'name' => '結構名稱',
-                'style' => array(
-                    '結構自定樣式集'
+        if ($this->_options['type'] == 'complex') {
+            // 模式：複雜(complex)
+            $config = array(
+                'config' => array(
+                    'name' => '結構名稱',
+                    'style' => array(
+                        '結構自定樣式集'
+                    ),
+                    'class' => '結構自定樣式名'
                 ),
-                'class' => '結構自定樣式名'
-            ),
-            'defined' => array(
-                'key' => array(
-                    'key' => '鍵名',
-                    'value' => '(在結構設定中，此值為該欄位名稱)',
-                    'desc' => '說明',
-                    'col' => '1',
-                    'row' => '1',
-                    'style' => array(),
-                    'class' => '',
-                    'default' => '預設值',
-                    'list' => '下拉選單名'
+                'defined' => array(
+                    'key' => array(
+                        'key' => '鍵名',
+                        'value' => '(在結構設定中，此值為該欄位名稱)',
+                        'desc' => '說明',
+                        'col' => '1',
+                        'row' => '1',
+                        'style' => array(),
+                        'class' => '',
+                        'default' => '預設值',
+                        'list' => '下拉選單名'
+                    )
                 )
-            )
-        );
+            );
+        } else {
+            // 模式：簡易(simple)
+            $config = array(
+                'u_no' => '編號',
+                'c_name' => '姓名',
+                'id_no' => '身分證字號',
+                'birthday' => '出生年月日',
+                'u_country' => '國別'
+            );
+        }
+        
+        return $config;
     }
 
     /**
@@ -320,25 +336,19 @@ abstract class Config extends \CI_Model
 
     /**
      * 設定標題定義
-     *
-     * @param array $data 格式定義
-     * @param array $style 樣式集
-     * @param string $class 樣式集名稱
+     * 
+     * 標題可有多個，以陣列儲存
+     * 
+     * @param array $data
+     *            格式定義
      * @return \marshung\io\config\abstracts\Config
      */
-    public function setTitle($data = null, $style = array(), $class = '')
+    public function setTitle($data = null)
     {
         if (! is_null($data) && is_array($data)) {
-            $this->_title = array(
-                'config' => array(
-                    'type' => 'title',
-                    'name' => 'title',
-                    'style' => $style,
-                    'class' => $class
-                ),
-                'defined' => $data
-            );
-        } elseif (empty($this->_title)) {
+            $this->_title[] = $data;
+        } else {
+            // 沒有傳入值時
             $this->titleDefined();
         }
         
@@ -347,56 +357,43 @@ abstract class Config extends \CI_Model
 
     /**
      * 設定內容定義
-     *
-     * @param array $data 格式定義
-     * @param array $style 樣式集
-     * @param string $class 樣式集名稱
+     * 
+     * 內容只有一個，直接儲存
+     * 
+     * @param array $data
+     *            格式定義
      * @return \marshung\io\config\abstracts\Config
      */
-    public function setContent($data = null, $style = array(), $class = '')
+    public function setContent($data = null)
     {
         if (! is_null($data) && is_array($data)) {
-            $this->_content = array(
-                'config' => array(
-                    'type' => 'content',
-                    'name' => 'content',
-                    'style' => $style,
-                    'class' => $class
-                ),
-                'defined' => $data
-            );
+            $this->_content = $data;
             // 設定資料範本 - 鍵值表及預設值
             $this->templateDefined();
-        } elseif (empty($this->_content)) {
+        } else {
             $this->contentDefined();
             // 設定資料範本 - 鍵值表及預設值
             $this->templateDefined();
         }
+        
         
         return $this;
     }
 
     /**
      * 設定結尾定義
-     *
-     * @param array $data 格式定義
-     * @param array $style 樣式集
-     * @param string $class 樣式集名稱
+     * 
+     * 結尾可有多個，以陣列儲存
+     * 
+     * @param array $data
+     *            格式定義
      * @return \marshung\io\config\abstracts\Config
      */
-    public function setFoot($data = null, $style = array(), $class = '')
+    public function setFoot($data = null)
     {
         if (! is_null($data) && is_array($data)) {
-            $this->_foot = array(
-                'config' => array(
-                    'type' => 'foot',
-                    'name' => 'foot',
-                    'style' => $style,
-                    'class' => $class
-                ),
-                'defined' => $data
-            );
-        } elseif (empty($this->_foot)) {
+            $this->_foot[] = $data;
+        } else {
             $this->footDefined();
         }
         
@@ -638,7 +635,7 @@ abstract class Config extends \CI_Model
     protected function templateDefined()
     {
         $content = $this->getContent();
-        $defined = isset($content['defined']) ? $content['defined'] : array();
+        $defined = isset($content['defined']) ? $content['defined'] : (array) $content;
         $template = array();
         
         foreach ($defined as $key => $info) {
@@ -653,24 +650,41 @@ abstract class Config extends \CI_Model
      *
      * @param array $defined            
      */
-    public static function definedFilter(& $defined)
+    public function definedFilter(& $defined)
     {
-        if (isset($defined['defined'])) {
-            $def = & $defined['defined'];
-        } else {
-            $def = & $defined;
+        if ($this->_options['type'] == 'complex') {
+            // 模式：複雜(complex)
+            if (isset($defined['defined'])) {
+                $def = & $defined['defined'];
+                
+                foreach ($def as $key => $info) {
+                    $def[$key] = array_intersect_key(array_merge($this->_helperField, $info), $this->_helperField);
+                }
+            }
         }
         
-        var_export($defined);
-        var_export($def);
-        
-        exit;
-        // 資料重整
-        foreach ($def as $key => $info) {
-            $def[$key] = array_intersect_key(array_merge(self::$_helperField, $info), self::$_helperField);
-        }
+        return $defined;
     }
 
+    /**
+     * 從定義資料中取得列定義
+     * 
+     * @param array $defined
+     * @return array
+     */
+    public function getRowFromDefined($defined)
+    {
+        if ($this->_options['type'] == 'complex') {
+            // 模式：複雜(complex)
+            $data = $defined['defined'];
+        } else {
+            // 模式：簡易(simple)
+            $data = $defined;
+        }
+        
+        return $data;
+    }
+    
     /**
      * **********************************************
      * ************** Abstract Function **************

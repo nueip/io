@@ -36,6 +36,8 @@ class SalaryViiiConfig extends \marshung\io\config\abstracts\Config
         ), '', __CLASS__));
         // 工作表名稱
         $this->_options['sheetName'] = '非固定科目';
+        // 模式：簡易(simple)、複雜(complex)
+        $this->_options['type'] = 'complex';
     }
 
     /**

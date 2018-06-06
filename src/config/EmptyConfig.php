@@ -28,6 +28,8 @@ class EmptyConfig extends \marshung\io\config\abstracts\Config
         ), '', __CLASS__));
         // 工作表名稱
         $this->_options['sheetName'] = 'Worksheet';
+        // 模式：簡易(simple)、複雜(complex)
+        $this->_options['type'] = 'simple';
     }
 
     /**

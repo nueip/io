@@ -36,6 +36,8 @@ class AddInsConfig extends \marshung\io\config\abstracts\Config
         ), '', __CLASS__));
         // 工作表名稱
         $this->_options['sheetName'] = '批次加保範本';
+        // 模式：簡易(simple)、複雜(complex)
+        $this->_options['type'] = 'complex';
     }
 
     /**
@@ -448,10 +450,8 @@ class AddInsConfig extends \marshung\io\config\abstracts\Config
      */
     protected function titleDefined()
     {
-        $title = array();
-        
         // 標題1
-        $title[] = array(
+        $title = array(
             'config' => array(
                 'type' => 'title',
                 'name' => 'title1',
@@ -503,9 +503,11 @@ class AddInsConfig extends \marshung\io\config\abstracts\Config
                 )
             )
         );
+        // 設定標題定義
+        $this->setTitle($title);
         
         // 標題2
-        $title[] = array(
+        $title = array(
             'config' => array(
                 'type' => 'title',
                 'name' => 'title2',
@@ -659,9 +661,11 @@ class AddInsConfig extends \marshung\io\config\abstracts\Config
                 )
             )
         );
+        // 設定標題定義
+        $this->setTitle($title);
         
         // 範例
-        $example = $title[1];
+        $example = $title;
         $example['config']['name'] = 'example';
         $example['config']['style'] = array();
         $example['config']['class'] = 'example';
@@ -690,10 +694,8 @@ class AddInsConfig extends \marshung\io\config\abstracts\Config
         $example['defined']['heal_ins_salary']['value'] = '沒填系統自動帶合適級距';
         $example['defined']['subsidy_eligibility']['value'] = '請選擇';
         
-        $title[] = $example;
-        
         // 設定標題定義
-        $this->setTitle($title);
+        $this->setTitle($example);
     }
 
     /**
