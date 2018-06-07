@@ -214,7 +214,11 @@ class ExcelBuilder
         // 設定檔物件
         $this->_config = $config;
         // 載入下拉選單定義
-        $this->_listMap = $this->_config->getList();
+        foreach ($this->_listMap as $k => $map) {
+            $this->_config->setList($k, $map);
+        }
+        // 傳址對應
+        $this->_listMap = & $this->_config->getList();
         return $this;
     }
 
@@ -261,6 +265,17 @@ class ExcelBuilder
     public function getData()
     {
         return $this->_data;
+    }
+
+    /**
+     * 載入下拉選單定義 - 額外定義資料
+     *
+     * @param string $list
+     *            定義檔
+     */
+    public function getList()
+    {
+        return $this->_listMap;
     }
 
     /**
@@ -365,7 +380,6 @@ class ExcelBuilder
         foreach ($this->_config->getTitle() as $key => $tRow) {
             // 設定資料過濾，在喂給helper時不會有多餘的資料
             $this->_config->definedFilter($tRow);
-            
             $rowData = $this->_config->getRowFromDefined($tRow);
             
             // 寫入標題資料至excel
@@ -552,24 +566,32 @@ class ExcelBuilder
         
         // 取得內容定義資料
         $content = $this->_config->getContent();
-        if (isset($content['defined']) && is_array($content['defined'])) {
+        if (! empty($content)) {
             // 有內容定義 - 取得欄位定義
-            $cDefined = array_column($content['defined'], 'value', 'key');
+            $cDefined = $this->_config->getRowFromDefined($content);
         } else {
             // 沒有內容定義，改用傳入資料陣列
-            $cDefined = array_column($this->_data, 'value', 'key');
+            $cDefined = $this->_data;
+        }
+        if (is_array(current($cDefined))) {
+            $cDefined = array_column($cDefined, 'value', 'key');
         }
         
         // 遍歷資料範本 - 建構下拉選單值的資料表，並繫結到目標欄位
+        $colCount = 0;
         foreach ($cDefined as $key => $colTitle) {
+            // 欄位計算
+            $colCount ++;
             // 跳過不處理的欄位
             if (! isset($this->_listMap[$key])) {
                 continue;
             }
             
+            
             // ====== 將下拉選單繫結到目標工作表 ======
-            // 取得資料Key對映的Excel欄位碼
+            // 取得資料Key對映的Excel欄位碼 - 簡易模式或傳入資料陣列時，欄位碼需計算
             $colCode = $this->_builder->getColumnMap($key);
+            $colCode = empty($colCode) ? $this->_builder->num2alpha($colCount) : $colCode;
             // 遍歷目標欄位的各cell - 下拉選單需一cell一cell的繫結
             for ($i = $rowStart; $i <= $rowEnd; $i ++) {
                 // 對指定欄位建構下拉選單結構

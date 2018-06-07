@@ -304,7 +304,7 @@ abstract class Config extends \CI_Model
      *            鍵名，不指定則傳回全部
      * @return array
      */
-    public function getList($key = null)
+    public function &getList($key = null)
     {
         if (is_null($key)) {
             // 未定鍵名 - 取得全部
@@ -336,9 +336,9 @@ abstract class Config extends \CI_Model
 
     /**
      * 設定標題定義
-     * 
+     *
      * 標題可有多個，以陣列儲存
-     * 
+     *
      * @param array $data
      *            格式定義
      * @return \marshung\io\config\abstracts\Config
@@ -357,9 +357,9 @@ abstract class Config extends \CI_Model
 
     /**
      * 設定內容定義
-     * 
+     *
      * 內容只有一個，直接儲存
-     * 
+     *
      * @param array $data
      *            格式定義
      * @return \marshung\io\config\abstracts\Config
@@ -376,15 +376,14 @@ abstract class Config extends \CI_Model
             $this->templateDefined();
         }
         
-        
         return $this;
     }
 
     /**
      * 設定結尾定義
-     * 
+     *
      * 結尾可有多個，以陣列儲存
-     * 
+     *
      * @param array $data
      *            格式定義
      * @return \marshung\io\config\abstracts\Config
@@ -668,8 +667,8 @@ abstract class Config extends \CI_Model
 
     /**
      * 從定義資料中取得列定義
-     * 
-     * @param array $defined
+     *
+     * @param array $defined            
      * @return array
      */
     public function getRowFromDefined($defined)
@@ -684,7 +683,7 @@ abstract class Config extends \CI_Model
         
         return $data;
     }
-    
+
     /**
      * **********************************************
      * ************** Abstract Function **************

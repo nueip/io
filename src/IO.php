@@ -15,12 +15,12 @@ namespace marshung\io;
  *          'iu_sn' => ''
  *          ]);
  *         
- *          $io = new \marshung\io\NueipIO();
+ *          $io = new \marshung\io\IO();
  *          $io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Nueip');
  *         
  *          // === 匯入 ===
  *          // IO物件建構
- *          $io = new \marshung\io\NueipIO();
+ *          $io = new \marshung\io\IO();
  *          // 匯入處理 - 取得匯入資料
  *          $data = $io->import($config = 'AddIns', $builder = 'Excel');
  *         
@@ -153,7 +153,7 @@ class IO
      *            參數名稱
      * @param string $opValue
      *            參數值
-     * @return \marshung\io\NueipIO
+     * @return \marshung\io\IO
      */
     public function setOption($opName, $opValue)
     {
@@ -220,15 +220,67 @@ class IO
         $this->_builder = \marshung\io\ClassFactory::getBuilder($builder);
         return $this;
     }
-
+    
     /**
-     * 取得定義檔
+     * 取得-參數設定
+     *
+     * @return array
+     */
+    public function getOption()
+    {
+        return $this->_options;
+    }
+    
+    /**
+     * 取得-資料
+     *
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->_data;
+    }
+    
+    /**
+     * 取得-定義檔物件
+     *
+     * @return object
      */
     public function getConfig()
     {
         return $this->_config;
     }
-
+    
+    /**
+     * 取得-Style定義物件
+     *
+     * @return object
+     */
+    public function getStyle()
+    {
+        return $this->_style;
+    }
+    
+    /**
+     * 取得-下拉選單定義資料
+     *
+     * @return array
+     */
+    public function getList()
+    {
+        return $this->_listMap;
+    }
+    
+    /**
+     * 取得-io物件
+     * 
+     * @return object
+     */
+    public function getBuilder()
+    {
+        return $this->_builder;
+    }
+    
     /**
      * ***********************************************
      * ************** Building Function **************
@@ -262,7 +314,7 @@ class IO
         
         // 載入下拉選單定義 - 額外定義資料
         foreach ($this->_listMap as $keyName => $listDEfined) {
-            $this->_builder->setList($keyName, $listDEfined);
+            $this->_config->setList($keyName, $listDEfined);
         }
         
         // 建構資料 & 輸出
@@ -282,7 +334,7 @@ class IO
         
         // 載入下拉選單定義 - 額外定義資料
         foreach ($this->_listMap as $keyName => $listDEfined) {
-            $this->_builder->setList($keyName, $listDEfined);
+            $this->_config->setList($keyName, $listDEfined);
         }
         
         // 建構資料 & 輸出
