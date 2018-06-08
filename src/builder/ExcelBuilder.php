@@ -180,14 +180,20 @@ class ExcelBuilder
     }
 
     /**
-     * 載入參數
+     * 參數設定
      *
-     * @param array $options
-     *            參數
+     * @param array $option 參數值
+     * @param string $optionName 參數名稱
+     * @return \marshung\io\builder\ExcelBuilder
      */
-    public function setOptions(Array $options)
+    public function setOption($option, $optionName = null)
     {
-        $this->_options = $options;
+        if (is_null($optionName)) {
+            $this->_options = $option;
+        } else {
+            $this->_options[$optionName] = $option;
+        }
+        
         return $this;
     }
 
@@ -213,9 +219,9 @@ class ExcelBuilder
     {
         // 設定檔物件
         $this->_config = $config;
-        // 載入下拉選單定義
+        // 載入下拉選單定義 - 二者都可能有值
         foreach ($this->_listMap as $k => $map) {
-            $this->_config->setList($k, $map);
+            $this->_config->setList($map, $k);
         }
         // 傳址對應
         $this->_listMap = & $this->_config->getList();
@@ -233,16 +239,24 @@ class ExcelBuilder
         $this->_style = $style;
         return $this;
     }
-
+    
     /**
-     * 載入下拉選單定義 - 額外定義資料
+     * 設定對映表 - 下拉選單:值&文字
      *
-     * @param string $list
-     *            定義檔
+     * @param array $mapData
+     *            對映表資料
+     * @param string $key
+     *            鍵名
+     * @return \marshung\io\config\abstracts\Config
      */
-    public function setList($keyName, $listDEfined)
+    public function setList(Array $mapData, $key = null)
     {
-        $this->_listMap[$keyName] = $listDEfined;
+        if (is_null($key)) {
+            $this->_listMap = $mapData;
+        } else {
+            $this->_listMap[$key] = $mapData;
+        }
+        
         return $this;
     }
 

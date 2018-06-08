@@ -6,38 +6,65 @@
 
 # 用法
 ## 有資料的結構定義物件
+### 匯出
 ```
 // === 匯出 ===
-// IO物件建構
-$io = new \app\libraries\io\IO();
-// 匯出處理 - 建構匯出資料 - 有資料的結構定義物件
-$io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Nueip');
+// 取得原始資料
+$data = $data;
 
+// IO物件建構
+$io = new \marshung\io\IO();
+// 匯出處理 - 建構匯出資料 - 有資料的結構定義物件
+$io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Io');
+```
+
+### 匯入
+```
 // === 匯入 ===
 // IO物件建構
-$io = new \app\libraries\io\NueipIO();
+$io = new \marshung\io\IO();
 // 匯入處理 - 取得匯入資料 - 有資料的結構定義物件
 $data = $io->import($config = 'AddIns', $builder = 'Excel');
 ```
 
 ## 空的結構定義物件
+### 匯出
 ```
 // === 匯出 ===
-// IO物件建構
-$io = new \app\libraries\io\IO();
-// 匯出處理 - 建構匯出資料 - 空的結構定義物件
-$io->export($data, $config = 'Empty', $builder = 'Excel', $style = 'Nueip');
+// 取得原始資料
+$data = $data;
 
-// === 匯入 - 未檢查 ===
 // IO物件建構
-$io = new \app\libraries\io\NueipIO();
-// 匯入處理 - 取得匯入資料 - 空的結構定義物件
+$io = new \marshung\io\IO();
+// 匯出處理 - 建構匯出資料 - 空的結構定義物件
+$io->export($data, $config = 'Empty', $builder = 'Excel', $style = 'Io');
+```
+
+### 匯入
+```
+// === 匯入 ===
+// IO物件建構
+$io = new \marshung\io\IO();
+// 匯入處理 - 取得匯入資料 - 有資料的結構定義物件
 $data = $io->import($config = 'Empty', $builder = 'Excel');
 ```
 
-## 手動處理
+## 手動處理 - 外部處理
+### 匯出
 ```
 // === 匯出 ===
+// 取得原始資料
+$data = $data;
+
+// 結構定義-簡易模式
+$defined = array(
+    'u_no' => '員工編號',
+    'c_name' => '姓名',
+    'id_no' => '身分證字號',
+    'birthday' => '出生年月日',
+    'gender' => '性別'
+);
+
 // IO物件建構
 $io = new \marshung\io\IO();
 
@@ -45,38 +72,84 @@ $io = new \marshung\io\IO();
 $io->setConfig()
     ->setBuilder()
     ->setStyle();
+
 // 載入外部定義
-$io->getConfig()
+$conf = $io->getConfig()
     ->setTitle($defined)
     ->setContent($defined);
 
+// 建構外部對映表
+$listMap = array(
+    'gender' => array(
+        array(
+            'value' => '1',
+            'text' => '男'
+        ),
+        array(
+            'value' => '0',
+            'text' => '女'
+        )
+    )
+);
 
 // 載入外部對映表
-$iConf = new \marshung\io\config\AddInsConfig();
-$listMap = $iConf->getList();
-
-$conf = $io->getConfig();
-$conf->setList('u_country', $listMap['u_country']);
-$conf->setList('iu_sn', $listMap['iu_sn']);
-$conf->setList('rate_company', $listMap['rate_company']);
-$conf->setList('ins_status', $listMap['ins_status']);
-$conf->setList('disability_level', $listMap['disability_level']);
-$conf->setList('assured_category', $listMap['assured_category']);
-$conf->setList('labor_insurance_1', $listMap['labor_insurance_1']);
-$conf->setList('labor_insurance_2', $listMap['labor_insurance_2']);
-$conf->setList('emp_insurance', $listMap['emp_insurance']);
-$conf->setList('labor_retir_system', $listMap['labor_retir_system']);
-$conf->setList('ins_category', $listMap['ins_category']);
-$conf->setList('subsidy_eligibility', $listMap['subsidy_eligibility']);
-$conf->setList('laborLevel', $listMap['laborLevel']);
-$conf->setList('labor_salary', $listMap['labor_salary']);
-$conf->setList('pensionLevel', $listMap['pensionLevel']);
-$conf->setList('labor_retir_salary', $listMap['labor_retir_salary']);
-$conf->setList('nhiLevel', $listMap['nhiLevel']);
-$conf->setList('heal_ins_salary', $listMap['heal_ins_salary']);
+$conf->setList($listMap);
 
 // 匯出處理 - 建構匯出資料
 $io->setData($data)->exportBuilder();
-
-// === 匯入 - 未實作 ===
 ```
+
+### 匯入
+```
+// === 匯入 ===
+// 結構定義-簡易模式
+$defined = array(
+    'u_no' => '員工編號',
+    'c_name' => '姓名',
+    'id_no' => '身分證字號',
+    'birthday' => '出生年月日',
+    'gender' => '性別'
+);
+
+// === 匯入 ===
+// IO物件建構
+$io = new \marshung\io\IO();
+
+// 手動建構相關物件
+$io->setConfig()
+    ->setBuilder()
+    ->setStyle();
+
+// 載入外部定義
+$conf = $io->getConfig()
+    ->setTitle($defined)
+    ->setContent($defined);
+
+// 建構外部對映表
+$listMap = array(
+    'gender' => array(
+        array(
+            'value' => '1',
+            'text' => '男'
+        ),
+        array(
+            'value' => '0',
+            'text' => '女'
+        )
+    )
+);
+
+// 載入外部對映表
+$conf->setList($listMap);
+
+// 取得Builder
+$builder = $io->getBuilder();
+
+// 匯入處理 - 取得匯入資料
+$data = $io->import($conf, $builder);
+```
+
+
+
+
+

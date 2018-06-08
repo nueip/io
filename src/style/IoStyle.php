@@ -7,12 +7,12 @@ namespace marshung\io\style;
 /**
  * 樣式定義物件
  *
- * 為NuEIP Excel樣式風格定義的物件
+ * 為IO Excel樣式風格定義的物件
  *
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-23
  *        
  */
-class NueipStyle
+class IoStyle
 {
 
     /**
@@ -21,7 +21,7 @@ class NueipStyle
      * @var array
      */
     protected $_options = array(
-        'style' => 'nueip',
+        'style' => 'io',
         'styleVersion' => '0.1'
     );
 

@@ -326,10 +326,20 @@ abstract class Config extends \CI_Model
     
     /**
      * 設置設定檔參數
+     *
+     * @param array $option
+     *            參數值
+     * @param string $optionName
+     *            參數名稱
+     * @return \marshung\io\config\abstracts\Config
      */
-    public function setOption($optionName, $option)
+    public function setOption($option, $optionName = null)
     {
-        $this->_options[$optionName] = $option;
+        if (is_null($optionName)) {
+            $this->_options = $option;
+        } else {
+            $this->_options[$optionName] = $option;
+        }
         
         return $this;
     }
@@ -416,15 +426,19 @@ abstract class Config extends \CI_Model
     /**
      * 設定對映表 - 下拉選單:值&文字
      *
-     * @param string $key
-     *            鍵名
      * @param array $mapData
      *            對映表資料
-     * @return array
+     * @param string $key
+     *            鍵名
+     * @return \marshung\io\config\abstracts\Config
      */
-    public function setList($key, $mapData)
+    public function setList(Array $mapData, $key = null)
     {
-        $this->_listMap[$key] = $mapData;
+        if (is_null($key)) {
+            $this->_listMap = $mapData;
+        } else {
+            $this->_listMap[$key] = $mapData;
+        }
         
         return $this;
     }

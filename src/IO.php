@@ -16,7 +16,7 @@ namespace marshung\io;
  *          ]);
  *         
  *          $io = new \marshung\io\IO();
- *          $io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Nueip');
+ *          $io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Io');
  *         
  *          // === 匯入 ===
  *          // IO物件建構
@@ -32,7 +32,7 @@ class IO
 
     /**
      * 預設參數
-     * 
+     *
      * @var array
      */
     protected $_options = array(
@@ -41,21 +41,21 @@ class IO
 
     /**
      * 資料
-     * 
+     *
      * @var array
      */
     protected $_data = array();
 
     /**
      * 結構定義物件
-     * 
+     *
      * @var array
      */
     protected $_config = null;
 
     /**
      * 樣式定義物件
-     * 
+     *
      * @var array
      */
     protected $_style = null;
@@ -69,7 +69,7 @@ class IO
 
     /**
      * 建構函式 - 格式處理總成物件
-     * 
+     *
      * @var object
      */
     protected $_builder = null;
@@ -104,7 +104,7 @@ class IO
      * 2.資料結構來自config object，資料樣式來自style object
      * 3.在 匯出處理+匯入處理 中，SQL層原始資料形成一個循環，是最初值，也是最終值
      */
-    public function export($data, $config = 'Empty', $builder = 'Excel', $style = 'Nueip')
+    public function export($data, $config = 'Empty', $builder = 'Excel', $style = 'Io')
     {
         // 建立io物件
         $this->setBuilder($builder);
@@ -149,15 +149,20 @@ class IO
     /**
      * 參數設定
      *
-     * @param string $opName
-     *            參數名稱
-     * @param string $opValue
+     * @param array $option
      *            參數值
+     * @param string $optionName
+     *            參數名稱
      * @return \marshung\io\IO
      */
-    public function setOption($opName, $opValue)
+    public function setOption($option, $optionName = null)
     {
-        $this->_options[$opName] = $opValue;
+        if (is_null($optionName)) {
+            $this->_options = $option;
+        } else {
+            $this->_options[$optionName] = $option;
+        }
+        
         return $this;
     }
 
@@ -181,7 +186,12 @@ class IO
      */
     public function setConfig($config = 'Empty')
     {
-        $this->_config = \marshung\io\ClassFactory::getConfig($config);
+        if ($config instanceof \marshung\io\config\abstracts\Config) {
+            $this->_config = $config;
+        } else {
+            $this->_config = \marshung\io\ClassFactory::getConfig($config);
+        }
+        
         return $this;
     }
 
@@ -191,21 +201,34 @@ class IO
      * @param string $style
      *            IO物件
      */
-    public function setStyle($style = 'Nueip')
+    public function setStyle($style = 'Io')
     {
-        $this->_style = \marshung\io\ClassFactory::getStyle($style);
+        if (is_object($style)) {
+            $this->_style = $style;
+        } else {
+            $this->_style = \marshung\io\ClassFactory::getStyle($style);
+        }
+        
         return $this;
     }
 
     /**
-     * 載入下拉選單定義資料
+     * 設定對映表 - 下拉選單:值&文字
      *
-     * @param string $style
-     *            IO物件
+     * @param array $mapData
+     *            對映表資料
+     * @param string $key
+     *            鍵名
+     * @return \marshung\io\config\abstracts\Config
      */
-    public function setList($keyName, $listDEfined)
+    public function setList(Array $mapData, $key = null)
     {
-        $this->_listMap[$keyName] = $listDEfined;
+        if (is_null($key)) {
+            $this->_listMap = $mapData;
+        } else {
+            $this->_listMap[$key] = $mapData;
+        }
+        
         return $this;
     }
 
@@ -217,10 +240,15 @@ class IO
      */
     public function setBuilder($builder = 'Excel')
     {
-        $this->_builder = \marshung\io\ClassFactory::getBuilder($builder);
+        if (is_object($builder)) {
+            $this->_builder = $builder;
+        } else {
+            $this->_builder = \marshung\io\ClassFactory::getBuilder($builder);
+        }
+        
         return $this;
     }
-    
+
     /**
      * 取得-參數設定
      *
@@ -230,7 +258,7 @@ class IO
     {
         return $this->_options;
     }
-    
+
     /**
      * 取得-資料
      *
@@ -240,7 +268,7 @@ class IO
     {
         return $this->_data;
     }
-    
+
     /**
      * 取得-定義檔物件
      *
@@ -250,7 +278,7 @@ class IO
     {
         return $this->_config;
     }
-    
+
     /**
      * 取得-Style定義物件
      *
@@ -260,7 +288,7 @@ class IO
     {
         return $this->_style;
     }
-    
+
     /**
      * 取得-下拉選單定義資料
      *
@@ -270,17 +298,17 @@ class IO
     {
         return $this->_listMap;
     }
-    
+
     /**
      * 取得-io物件
-     * 
+     *
      * @return object
      */
     public function getBuilder()
     {
         return $this->_builder;
     }
-    
+
     /**
      * ***********************************************
      * ************** Building Function **************
@@ -304,7 +332,7 @@ class IO
         }
         
         // 載入參數
-        $this->_builder->setOptions($this->_options);
+        $this->_builder->setOption($this->_options);
         // 載入資料
         $this->_builder->setData($this->_data);
         // 載入結構定義
@@ -312,9 +340,9 @@ class IO
         // 載入樣式定義
         $this->_builder->setStyle($this->_style);
         
-        // 載入下拉選單定義 - 額外定義資料
+        // 載入下拉選單定義 - 額外定義資料 - _config中可能已有值，不可直接覆蓋
         foreach ($this->_listMap as $keyName => $listDEfined) {
-            $this->_config->setList($keyName, $listDEfined);
+            $this->_config->setList($listDEfined, $keyName);
         }
         
         // 建構資料 & 輸出
@@ -323,18 +351,20 @@ class IO
 
     /**
      * 匯入解析並回傳
+     *
+     * @return array
      */
     protected function importParser()
     {
         // 載入參數
-        $this->_builder->setOptions($this->_options);
+        $this->_builder->setOption($this->_options);
         
         // 載入結構定義
         $this->_builder->setConfig($this->_config);
         
-        // 載入下拉選單定義 - 額外定義資料
+        // 載入下拉選單定義 - 額外定義資料 - _config中可能已有值，不可直接覆蓋
         foreach ($this->_listMap as $keyName => $listDEfined) {
-            $this->_config->setList($keyName, $listDEfined);
+            $this->_config->setList($listDEfined, $keyName);
         }
         
         // 建構資料 & 輸出

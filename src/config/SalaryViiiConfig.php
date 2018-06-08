@@ -123,7 +123,7 @@ class SalaryViiiConfig extends \marshung\io\config\abstracts\Config
             'defined' => array(
                 't1' => array(
                     'key' => 't1',
-                    'value' => get_language('id'), //'員工編號',
+                    'value' => get_language('id'), // '員工編號',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(),
@@ -133,7 +133,7 @@ class SalaryViiiConfig extends \marshung\io\config\abstracts\Config
                 ),
                 't2' => array(
                     'key' => 't2',
-                    'value' => get_language('name'), //'姓名',
+                    'value' => get_language('name'), // '姓名',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(),
@@ -143,7 +143,7 @@ class SalaryViiiConfig extends \marshung\io\config\abstracts\Config
                 ),
                 't3' => array(
                     'key' => 't3',
-                    'value' => get_language('payitem'), //'科目名稱',
+                    'value' => get_language('payitem'), // '科目名稱',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(),
@@ -153,7 +153,7 @@ class SalaryViiiConfig extends \marshung\io\config\abstracts\Config
                 ),
                 't4' => array(
                     'key' => 't4',
-                    'value' => get_language('allowancedollar'), //'金額',
+                    'value' => get_language('allowancedollar'), // '金額',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(),
@@ -183,7 +183,7 @@ class SalaryViiiConfig extends \marshung\io\config\abstracts\Config
             'defined' => array(
                 'u_no' => array(
                     'key' => 'u_no',
-                    'value' => get_language('id'), //'員工編號',
+                    'value' => get_language('id'), // '員工編號',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(
@@ -195,7 +195,7 @@ class SalaryViiiConfig extends \marshung\io\config\abstracts\Config
                 ),
                 'c_name' => array(
                     'key' => 'c_name',
-                    'value' => get_language('name'), //'姓名',
+                    'value' => get_language('name'), // '姓名',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(
@@ -207,7 +207,7 @@ class SalaryViiiConfig extends \marshung\io\config\abstracts\Config
                 ),
                 'payroll_item' => array(
                     'key' => 'payroll_item',
-                    'value' => get_language('payitem'), //'科目名稱',
+                    'value' => get_language('payitem'), // '科目名稱',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(),
@@ -217,7 +217,7 @@ class SalaryViiiConfig extends \marshung\io\config\abstracts\Config
                 ),
                 'allowancedollar' => array(
                     'key' => 'allowancedollar',
-                    'value' => get_language('allowancedollar'), //'金額',
+                    'value' => get_language('allowancedollar'), // '金額',
                     'col' => '1',
                     'row' => '1',
                     'style' => array(

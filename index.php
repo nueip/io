@@ -12,5 +12,5 @@ $data = array(
 );
 
 $io = new \marshung\io\IO();
-// $io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Nueip');
-$io->export($data, $config = 'Empty', $builder = 'Excel', $style = 'Nueip');
+// $io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Io');
+$io->export($data, $config = 'Empty', $builder = 'Excel', $style = 'Io');
