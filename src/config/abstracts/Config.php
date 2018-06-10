@@ -24,6 +24,7 @@ abstract class Config extends \CI_Model
     protected $_options = array(
         'abstractVersion' => '0.1',
         'version' => '0.1',
+        'minVersion' => '0.1',
         'configName' => __CLASS__,
         'sheetName' => 'Worksheet',
         // 模式：簡易(simple)、複雜(complex)
@@ -461,29 +462,58 @@ abstract class Config extends \CI_Model
     }
 
     /**
-     * 參數解析
+     * 參數編碼 - 結構定義物件內容
+     * 
+     * 將結構定義物件內容編碼後待存入參數工作表中
+     * 
+     * @return string[]
+     */
+    public function optionEncode()
+    {
+        return array(
+            'ConfigContent',
+            json_encode($this->_options),
+            json_encode($this->_title),
+            json_encode($this->_content),
+            json_encode($this->_foot),
+            json_encode($this->_listMap)
+        );
+    }
+    
+    /**
+     * 參數解析 - 結構定義物件內容
      *
      * 解析來自參數工作表中讀到的參數 (依序還原Key)
      * 為本設定檔資料時，才回傳解析後的資料，否則回傳false
      *
-     * @param array $options
+     * @param array $optionData
      *            參數
+     * @return boolean|mixed
      */
-    public function optionParser(Array $options)
+    public function optionDecode(Array $optionData)
     {
         // 依序還原Key
         
-        // 資料範本資料量、key
-        $optionSize = sizeof($this->_options);
-        $optionKey = array_keys($this->_options);
+        // 驗証資料
+        $opt = false;
+        if ($optionData[0] == 'ConfigContent') {
+            $options = json_decode($optionData[1], 1);
+            // 版本支援
+            if ($options['version'] >= $this->_options['minVersion']) {
+                $opt = $options;
+                $this->_options = $options;
+                $this->_title = json_decode($optionData[2], 1);
+                $this->_content = json_decode($optionData[3], 1);
+                $this->_foot = json_decode($optionData[4], 1);
+                $this->_listMap = json_decode($optionData[5], 1);
+                // 設定資料範本 - 鍵值表及預設值
+                $this->templateDefined();
+            }
+        }
         
-        $options = array_slice($options, 0, $optionSize);
-        $options = array_combine($optionKey, $options);
-        
-        // 為本設定檔資料時，才回傳解析後的資料，否則回傳false
-        return $this->_options['configName'] == $options['configName'] ? $options : false;
+        return $opt;
     }
-
+    
     /**
      * ******************************************************
      * ************** Content Process Function **************

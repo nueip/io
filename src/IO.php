@@ -22,7 +22,7 @@ namespace marshung\io;
  *          // IO物件建構
  *          $io = new \marshung\io\IO();
  *          // 匯入處理 - 取得匯入資料
- *          $data = $io->import($config = 'AddIns', $builder = 'Excel');
+ *          $data = $io->import($builder = 'Excel');
  *         
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-14
  *        
@@ -131,13 +131,13 @@ class IO
      *
      * 改進可能：config名稱可存在參數工作表ConfigSheet中
      */
-    public function import($config = 'Empty', $builder = 'Excel')
+    public function import($builder = 'Excel')
     {
         // 建立io物件
         $this->setBuilder($builder);
         
-        // 載入定義檔
-        $this->setConfig($config);
+        // 載入定義檔 - 結構定義資料會在建構匯出時存入檔案，並於匯入時取出解析，所以只與支援版本有關，此處直接使用Empty即可
+        $this->setConfig($config = 'Empty');
         
         // 取得上傳資料 - 將上傳檔載入IO建構物件
         $this->uploadFile2Builder();

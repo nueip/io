@@ -182,8 +182,10 @@ class ExcelBuilder
     /**
      * 參數設定
      *
-     * @param array $option 參數值
-     * @param string $optionName 參數名稱
+     * @param array $option
+     *            參數值
+     * @param string $optionName
+     *            參數名稱
      * @return \marshung\io\builder\ExcelBuilder
      */
     public function setOption($option, $optionName = null)
@@ -239,7 +241,7 @@ class ExcelBuilder
         $this->_style = $style;
         return $this;
     }
-    
+
     /**
      * 設定對映表 - 下拉選單:值&文字
      *
@@ -359,12 +361,16 @@ class ExcelBuilder
         
         // ====== 參數工作表內容 - 基本參數 ======
         if (is_object($this->_config)) {
-            // 取得設定檔參數
-            $options = $this->_config->getOption();
+            // 參數編碼 - 結構定義物件內容
+            $options = $this->_config->optionEncode();
+            
             // 基本參數設定 - 第一列:設定檔參數、第二列:建構函式參數
             $this->_builder->addRows([
                 $options,
-                $this->_options
+                [
+                    'builderOption',
+                    json_encode($this->_options)
+                ]
             ]);
         }
         // ======
@@ -601,7 +607,6 @@ class ExcelBuilder
                 continue;
             }
             
-            
             // ====== 將下拉選單繫結到目標工作表 ======
             // 取得資料Key對映的Excel欄位碼 - 簡易模式或傳入資料陣列時，欄位碼需計算
             $colCode = $this->_builder->getColumnMap($key);
@@ -638,10 +643,11 @@ class ExcelBuilder
             throw new \Exception('參數表錯誤', 404);
         }
         
-        $config = $this->_builder->getRow();
+        // 取得結構設定參數
+        $optionData = $this->_builder->getRow();
         
         // 參數解析
-        $config = $this->_config->optionParser($config);
+        $config = $this->_config->optionDecode($optionData);
         
         if ($config === false) {
             throw new \Exception('參數表錯誤', 404);
