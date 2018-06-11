@@ -18,8 +18,12 @@ $data = $data;
 
 // IO物件建構
 $io = new \marshung\io\IO();
-// 匯出處理 - 建構匯出資料 - 有資料的結構定義物件
-$io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Io');
+
+// 匯出處理 - 建構匯出資料 - 簡易模式結構定義物件-範本
+$io->export($data, $config = 'SimpleExample', $builder = 'Excel', $style = 'Io');
+
+// 匯出處理 - 建構匯出資料 - 複雜模式結構定義物件-範本
+$io->export($data, $config = 'ComplexExample', $builder = 'Excel', $style = 'Io');
 ```
 
 ### 匯入
@@ -50,7 +54,7 @@ $io = new \marshung\io\IO();
 $data = $io->import($builder = 'Excel');
 ```
 
-## 手動處理 - 外部處理
+## 手動處理 - 簡易模式
 ### 匯出
 ```
 // 取得原始資料
@@ -77,6 +81,244 @@ $io->setConfig()
 $conf = $io->getConfig()
     ->setTitle($defined)
     ->setContent($defined);
+
+// 建構外部對映表
+$listMap = array(
+    'gender' => array(
+        array(
+            'value' => '1',
+            'text' => '男'
+        ),
+        array(
+            'value' => '0',
+            'text' => '女'
+        )
+    )
+);
+
+// 載入外部對映表
+$conf->setList($listMap);
+
+// 匯出處理 - 建構匯出資料 - 手動處理
+$io->setData($data)->exportBuilder();
+```
+
+### 匯入
+```
+// IO物件建構
+$io = new \marshung\io\IO();
+// 匯入處理 - 取得匯入資料
+$data = $io->import($builder = 'Excel');
+```
+
+## 手動處理 - 複雜模式
+### 匯出
+```
+// 取得原始資料
+$data = $data;
+
+// 結構定義-複雜模式
+// 標題1
+$title1 = array(
+    'config' => array(
+        'type' => 'title',
+        'name' => 'title1',
+        'style' => array(
+            'font-size' => '16'
+        ),
+        'class' => ''
+    ),
+    'defined' => array(
+        't1' => array(
+            'key' => 't1',
+            'value' => '帳號',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        't2' => array(
+            'key' => 't2',
+            'value' => '姓名',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        't3' => array(
+            'key' => 't3',
+            'value' => '身分證字號',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        't4' => array(
+            'key' => 't4',
+            'value' => '生日',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        't5' => array(
+            'key' => 't4',
+            'value' => '性別',
+            'col' => '2',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        )
+    )
+);
+
+// 標題2
+$title2 = array(
+    'config' => array(
+        'type' => 'title',
+        'name' => 'example',
+        'style' => array(),
+        'class' => 'example'
+    ),
+    'defined' => array(
+        't1' => array(
+            'key' => 't1',
+            'value' => 'A001',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        't2' => array(
+            'key' => 't2',
+            'value' => '派大星',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        't3' => array(
+            'key' => 't3',
+            'value' => 'ET9000001',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        't4' => array(
+            'key' => 't4',
+            'value' => '2000-01-01',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        't5' => array(
+            'key' => 't4',
+            'value' => '男',
+            'col' => '2',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        )
+    )
+);
+
+// 內容
+$content = array(
+    'config' => array(
+        'type' => 'content',
+        'name' => 'content',
+        'style' => array(),
+        'class' => ''
+    ),
+    'defined' => array(
+        'u_no' => array(
+            'key' => 'u_no',
+            'value' => '帳號',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        'c_name' => array(
+            'key' => 'c_name',
+            'value' => '姓名',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        'id_no' => array(
+            'key' => 'id_no',
+            'value' => '身分證字號',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        'birthday' => array(
+            'key' => 'birthday',
+            'value' => '生日',
+            'col' => '1',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+        'gender' => array(
+            'key' => 'gender',
+            'value' => '性別',
+            'col' => '2',
+            'row' => '1',
+            'style' => array(),
+            'class' => '',
+            'default' => '1',
+            'list' => ''
+        )
+    )
+);
+
+// IO物件建構
+$io = new \marshung\io\IO();
+
+// 手動建構相關物件
+$io->setConfig()
+    ->setBuilder()
+    ->setStyle();
+
+// 載入外部定義
+$conf = $io->getConfig()
+    ->setTitle($title1)
+    ->setTitle($title2)
+    ->setContent($content);
 
 // 建構外部對映表
 $listMap = array(
