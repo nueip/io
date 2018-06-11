@@ -463,9 +463,9 @@ abstract class Config extends \CI_Model
 
     /**
      * 參數編碼 - 結構定義物件內容
-     * 
+     *
      * 將結構定義物件內容編碼後待存入參數工作表中
-     * 
+     *
      * @return string[]
      */
     public function optionEncode()
@@ -479,7 +479,7 @@ abstract class Config extends \CI_Model
             json_encode($this->_listMap)
         );
     }
-    
+
     /**
      * 參數解析 - 結構定義物件內容
      *
@@ -513,7 +513,7 @@ abstract class Config extends \CI_Model
         
         return $opt;
     }
-    
+
     /**
      * ******************************************************
      * ************** Content Process Function **************
@@ -682,7 +682,13 @@ abstract class Config extends \CI_Model
         $template = array();
         
         foreach ($defined as $key => $info) {
-            $template[$key] = isset($info['default']) ? $info['default'] : '';
+            if (is_array($info)) {
+                // 模式：複雜
+                $template[$key] = isset($info['default']) ? $info['default'] : '';
+            } else {
+                // 模式：簡易
+                $template[$key] = $info;
+            }
         }
         
         $this->_dataTemplate = $template;
@@ -695,14 +701,12 @@ abstract class Config extends \CI_Model
      */
     public function definedFilter(& $defined)
     {
-        if ($this->_options['type'] == 'complex') {
+        if (isset($defined['defined'])) {
             // 模式：複雜(complex)
-            if (isset($defined['defined'])) {
-                $def = & $defined['defined'];
-                
-                foreach ($def as $key => $info) {
-                    $def[$key] = array_intersect_key(array_merge($this->_helperField, $info), $this->_helperField);
-                }
+            $def = & $defined['defined'];
+            
+            foreach ($def as $key => $info) {
+                $def[$key] = array_intersect_key(array_merge($this->_helperField, $info), $this->_helperField);
             }
         }
         
@@ -711,21 +715,15 @@ abstract class Config extends \CI_Model
 
     /**
      * 從定義資料中取得列定義
-     *
+     * 
+     * 有$defined['defined']為複雜(complex)模式，否則為簡易(simple)模式
+     * 
      * @param array $defined            
      * @return array
      */
     public function getRowFromDefined($defined)
     {
-        if ($this->_options['type'] == 'complex') {
-            // 模式：複雜(complex)
-            $data = $defined['defined'];
-        } else {
-            // 模式：簡易(simple)
-            $data = $defined;
-        }
-        
-        return $data;
+        return isset($defined['defined']) ? $defined['defined'] : $defined;
     }
 
     /**
