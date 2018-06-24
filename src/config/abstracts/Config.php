@@ -2,7 +2,7 @@
 namespace marshung\io\config\abstracts;
 
 /**
- * IO Add Insurance Config abstract
+ * IO Config abstract
  *
  * 規則：
  * 1. title,foot二種資料，一列一筆定義
@@ -13,7 +13,7 @@ namespace marshung\io\config\abstracts;
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-04-18
  *        
  */
-abstract class Config extends \CI_Model
+abstract class Config
 {
 
     /**
