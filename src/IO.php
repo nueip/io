@@ -103,6 +103,11 @@ class IO
      * 1.流程：傳入SQL層原始資料 => 轉換成UI層資料 => 建構匯出檔 => 匯出
      * 2.資料結構來自config object，資料樣式來自style object
      * 3.在 匯出處理+匯入處理 中，SQL層原始資料形成一個循環，是最初值，也是最終值
+     * 
+     * @param array $data 資料
+     * @param string $config 結構設定檔名
+     * @param string $builder 格式處理總成物件名
+     * @param string $style 樣式設定樣名
      */
     public function export($data, $config = 'Empty', $builder = 'Excel', $style = 'Io')
     {
@@ -130,8 +135,12 @@ class IO
      * 3.在 匯出處理+匯入處理 中，SQL層原始資料形成一個循環，是最初值，也是最終值
      *
      * 改進可能：config名稱可存在參數工作表ConfigSheet中
+     * 
+     * @param string $builder 格式處理總成物件名
+     * @param string $fileArgu 上傳檔案參數名
+     * @return array
      */
-    public function import($builder = 'Excel')
+    public function import($builder = 'Excel', $fileArgu = 'fileupload')
     {
         // 建立io物件
         $this->setBuilder($builder);
@@ -140,7 +149,7 @@ class IO
         $this->setConfig($config = 'Empty');
         
         // 取得上傳資料 - 將上傳檔載入IO建構物件
-        $this->uploadFile2Builder();
+        $this->uploadFile2Builder($fileArgu);
         
         // 解析資料並回傳
         return $this->importParser();
@@ -382,24 +391,19 @@ class IO
      *
      * 取得上傳檔後，載入格式處理總成
      *
+     * @param string $fileArgu 上傳檔案參數名
      * @throws Exception
      * @return array
      */
-    protected function uploadFile2Builder()
+    protected function uploadFile2Builder($fileArgu = 'fileupload')
     {
-        // 上傳路徑
-        $UploadDir = 'uploads/tmp_files/';
-        if (! is_dir($UploadDir)) {
-            mkdir($UploadDir, 0700);
-        }
-        
         // 錯誤檢查
-        if (! isset($_FILES['fileupload'])) {
+        if (! isset($_FILES[$fileArgu])) {
             throw new \Exception('File upload failed !', 400);
         }
         
         // 處理上傳檔案 - 上傳檔案只讀取一次資料就棄用，應該不需要move_uploaded_file (2018-05-02)
-        $this->_builder->loadFile($_FILES['fileupload']['tmp_name'], $_FILES['fileupload']['name']);
+        $this->_builder->loadFile($_FILES[$fileArgu]['tmp_name'], $_FILES[$fileArgu]['name']);
         
         return $this;
     }
