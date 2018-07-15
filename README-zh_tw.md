@@ -47,6 +47,11 @@ $io->export($data, $config = 'ComplexExample', $builder = 'Excel', $style = 'Io'
 $io = new \marshung\io\IO();
 // 匯入處理 - 取得匯入資料
 $data = $io->import($builder = 'Excel', $fileArgu = 'fileupload');
+$configName = $io->getConfig()->getOption('configName');
+
+echo 'Config Name = ' . $configName . "<br>\n";
+echo 'Data = ';
+var_export($data);
 ```
 
 ## 空的結構定義物件
@@ -82,6 +87,11 @@ $io->export($data, $config = 'Empty', $builder = 'Excel', $style = 'Io');
 $io = new \marshung\io\IO();
 // 匯入處理 - 取得匯入資料
 $data = $io->import($builder = 'Excel', $fileArgu = 'fileupload');
+$configName = $io->getConfig()->getOption('configName');
+
+echo 'Config Name = ' . $configName . "<br>\n";
+echo 'Data = ';
+var_export($data);
 ```
 
 ## 手動處理 - 簡易模式
@@ -154,6 +164,11 @@ $io->setData($data)->exportBuilder();
 $io = new \marshung\io\IO();
 // 匯入處理 - 取得匯入資料
 $data = $io->import($builder = 'Excel', $fileArgu = 'fileupload');
+$configName = $io->getConfig()->getOption('configName');
+
+echo 'Config Name = ' . $configName . "<br>\n";
+echo 'Data = ';
+var_export($data);
 ```
 
 ## 手動處理 - 複雜模式
@@ -407,6 +422,11 @@ $io->setData($data)->exportBuilder();
 $io = new \marshung\io\IO();
 // 匯入處理 - 取得匯入資料
 $data = $io->import($builder = 'Excel', $fileArgu = 'fileupload');
+$configName = $io->getConfig()->getOption('configName');
+
+echo 'Config Name = ' . $configName . "<br>\n";
+echo 'Data = ';
+var_export($data);
 ```
 
 
