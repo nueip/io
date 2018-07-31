@@ -39,6 +39,14 @@ $io->export($data, $config = 'SimpleExample', $builder = 'Excel', $style = 'Io')
 
 // 匯出處理 - 建構匯出資料 - 複雜模式結構定義物件-範本
 $io->export($data, $config = 'ComplexExample', $builder = 'Excel', $style = 'Io');
+// 匯出處理 - 物件注入方式+欄位B凍結
+$config = new \marshung\io\config\SimpleExampleConfig();
+$builder = new \marshung\io\builder\ExcelBuilder();
+$style = new \marshung\io\style\IoStyle();
+$style->setFreeze('B');
+$io->export($data, $config, $builder, $style);
+
+
 ```
 
 ### 匯入

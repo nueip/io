@@ -137,6 +137,36 @@ class IoStyle
     }
 
     /**
+     * 設定樣式集
+     *
+     * @param array $class
+     *            樣式集
+     * @param String $className
+     *            樣式集名稱
+     * @return \marshung\io\style\IoStyle
+     */
+    public function setClass(Array $class, String $className)
+    {
+        $this->_classMap[$className] = $class;
+        
+        return $this;
+    }
+
+    /**
+     * 設定樣式 - 凍結欄位
+     *
+     * 只需設定欄，列固定為內容的第一列
+     *
+     * @return array
+     */
+    public function setFreeze($columnCode)
+    {
+        $this->_freeze = strtoupper(preg_replace('/[^a-zA-Z]/', '', $columnCode));
+        
+        return $this;
+    }
+
+    /**
      * **********************************************
      * ************** Private Function **************
      * **********************************************
