@@ -39,10 +39,15 @@ $io->export($data, $config = 'SimpleExample', $builder = 'Excel', $style = 'Io')
 
 // 匯出處理 - 建構匯出資料 - 複雜模式結構定義物件-範本
 $io->export($data, $config = 'ComplexExample', $builder = 'Excel', $style = 'Io');
-// 匯出處理 - 物件注入方式+欄位B凍結
+// 匯出處理 - 物件注入方式
 $config = new \marshung\io\config\SimpleExampleConfig();
+// 必要欄位設定 - 提供讀取資料時驗証用 - 有設定，且必要欄位有無資料者，跳出 - 因各版本excel對空列定義不同，可能編輯過列，就會產生沒有結尾的空列
+$config->setOption([
+    'u_no'
+], 'requiredField');
 $builder = new \marshung\io\builder\ExcelBuilder();
 $style = new \marshung\io\style\IoStyle();
+// 欄位B凍結
 $style->setFreeze('B');
 $io->export($data, $config, $builder, $style);
 

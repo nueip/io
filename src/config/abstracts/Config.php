@@ -28,7 +28,9 @@ abstract class Config
         'configName' => __CLASS__,
         'sheetName' => 'Worksheet',
         // 模式：簡易(simple)、複雜(complex)
-        'type' => 'simple'
+        'type' => 'simple',
+        // 必要欄位，必需有值，提供讀取資料時驗証用 - 有設定，且必要欄位有無資料者，跳出 - 因各版本excel對空列定義不同，可能編輯過列，就會產生沒有結尾的空列
+        'requiredField' => array()
     );
 
     /**
@@ -608,6 +610,38 @@ abstract class Config
     }
 
     /**
+     * 匯入資料驗証 - 必要欄位驗証
+     *
+     * 使用必要欄位驗証：有設定必要欄位，且該欄位有無資料的狀況，跳出，因各版本excel對空列定義不同，可能編輯過列，就會產生沒有結尾的空列
+     *
+     * @param array $row
+     *            單列資料
+     */
+    public function contentValidate(Array $row)
+    {
+        // 取得必要欄位
+        $requiredField = $this->getOption('requiredField');
+        $requiredField = is_array($requiredField) ? $requiredField : array();
+        // 資料範本資料量、key
+        $templateSize = sizeof($this->_dataTemplate);
+        $templateKeyFlip = array_flip(array_keys($this->_dataTemplate));
+        
+        $opt = true;
+        
+        // 有資料範本資料、設定必要欄位才驗証
+        if ($templateSize && ! empty($requiredField)) {
+            foreach ($requiredField as $keyCode) {
+                // 列資料$row有$requiredField指定的欄位，且該欄無資料時，回傳false
+                if (isset($templateKeyFlip[$keyCode]) && isset($row[$templateKeyFlip[$keyCode]]) && empty($row[$templateKeyFlip[$keyCode]])) {
+                    return false;
+                }
+            }
+        }
+        
+        return $opt;
+    }
+
+    /**
      * 執行資料轉換 value <=> text - 單筆資料
      *
      * 依照建構的對映表是value => text，還是text =>value決定轉換方向
@@ -715,9 +749,9 @@ abstract class Config
 
     /**
      * 從定義資料中取得列定義
-     * 
+     *
      * 有$defined['defined']為複雜(complex)模式，否則為簡易(simple)模式
-     * 
+     *
      * @param array $defined            
      * @return array
      */

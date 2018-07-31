@@ -670,6 +670,13 @@ class ExcelBuilder
                 $titleRowNumber --;
                 continue;
             }
+            
+            // 匯入資料驗証 - 必要欄位驗証
+            if (! $this->_config->contentValidate($row)) {
+                // 驗証失敗，跳出
+                break;
+            }
+            
             // 取得資料
             $data[] = $row;
         }

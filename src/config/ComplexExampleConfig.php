@@ -7,7 +7,7 @@ namespace marshung\io\config;
  * 單一工作表版本
  *
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-06-11
- *
+ *        
  */
 class ComplexExampleConfig extends \marshung\io\config\abstracts\Config
 {
@@ -32,6 +32,7 @@ class ComplexExampleConfig extends \marshung\io\config\abstracts\Config
         $this->_options['sheetName'] = '非固定科目';
         // 模式：簡易(simple)、複雜(complex)
         $this->_options['type'] = 'complex';
+        $this->_options['requiredField'] = array();
     }
 
     /**
@@ -65,7 +66,7 @@ class ComplexExampleConfig extends \marshung\io\config\abstracts\Config
         // 對映表建構 - 性別 - gender
         $this->genderMapBuilder();
     }
-    
+
     /**
      * 對映表建構 - 性別 - gender
      */
