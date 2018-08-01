@@ -39,7 +39,7 @@ class ExcelStyleBuilder
         ),
         'excelHorizontalAlignMap' => array(
             'center' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-            'center_continuous' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER_CONTINUOUS,
+            'centercontinuous' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER_CONTINUOUS,
             'general' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_GENERAL,
             'justify' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_JUSTIFY,
             'left' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
@@ -69,10 +69,15 @@ class ExcelStyleBuilder
             'thin' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
         ),
         'excelFormatMap' => array(
+            'general' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_GENERAL,
             'txt' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT,
             'text' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT,
+            'string' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT,
             'number' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER,
             'number_00' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_00,
+            'date' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDD2,
+            'time' => \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_TIME6,
+            'datetime' => 'YYYY\-MM\-DD\ HH:MM:SS',
         )
     );
     

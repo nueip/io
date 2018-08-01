@@ -443,6 +443,246 @@ var_export($data);
 ```
 
 
+# 樣式
+## 可用清單
+### 顏色
+| 代碼 | 色碼 | 顏色
+|:----:|:---:|:----:|
+| black | FF000000 | 黑色
+| blue | FF0000FF | 藍色
+| darkblue | FF000080 | 深藍
+| darkgreen | FF008000 | 深綠
+| darkred | FF800000 | 深紅
+| darkyellow | FF808000 | 深黃
+| green | FF00FF00 | 綠
+| red | FFFF0000 | 紅
+| white | FFFFFFFF | 白
+| yellow | FFFFFF00 | 黃
+
+### 水平對齊
+| 代碼 | 方式
+|:----:|:---:|
+| center | 置中
+| centercontinuous | |
+| general | 一般
+| justify | 左右貼齊
+| left | 靠左
+| right | 靠右
+
+
+### 垂直對齊
+| 代碼 | 方式
+|:----:|:---:|
+| bottom | 置底
+| center | 置中
+| middle | 置中
+| justify | |
+| top | 置頂
+
+### 邊線
+| 代碼 | 說明
+|:----:|:---:|
+| dashdot | |
+| dashdotdot | |
+| dashed | |
+| dotted | |
+| double | |
+| hair | |
+| medium | |
+| mediumdashdot | |
+| mediumdashdotdot | |
+| mediumdashed | |
+| none | |
+| slantdashdot | |
+| thick | |
+| thin | |
+
+
+### 儲存格格式
+| 代碼 | 說明
+|:----:|:---:|
+| general | 通用格式 |
+| txt | 文字 |
+| text | 文字 |
+| string | 文字 |
+| number | 數字 |
+| number_00 | 數字(小數二位) |
+| date | 日期 |
+| time | 時間 |
+| datetime | 日期+時間 |
+
+## 設定方式
+### 設定檔
+- 自定樣式檔
+```php=
+class MyStyle extends marshung\io\style\IoStyle
+{
+    public function __construct()
+    {
+        parent::__construct();
+        // 初始化 - 預設樣式
+        $this->run();
+    }
+
+     /**
+     * 初始化 - 預設樣式
+     * 'width' => 20.71,//儲存格欄寬
+     * 'height' => -1,//儲存格欄高(-1為自動高度)
+     * 'wraptext' => true,//儲存格自動換行
+     * 'font-name' => '微軟正黑體',//字體字型
+     * 'font-size' => 11,//字體大小
+     * 'font-bold' => false,//字體粗體
+     * 'font-underline' => false,//字體底線
+     * 'font-color' => 'black',//字體顏色
+     * 'align-horizontal' => 'left',//水平對齊
+     * 'align-vertical' => 'center',//垂直對齊
+     * 'border-all-style' => 'thin',//欄線樣式-全部
+     * 'border-all-color' => 'FF9F9FA0',//欄線顏色-全部
+     * 'border-top-style' => 'thin',//上欄線樣式
+     * 'border-left-style' => 'thin',//左欄線樣式
+     * 'border-right-style' => 'thin',//右欄線樣式
+     * 'border-bottom-style' => 'thin',//下欄線樣式
+     * 'border-outline-style' => 'thin',//外圈線樣式
+     * 'border-inside-style' => 'thin',//內部線樣式
+     * 'border-top-color' => 'FFDADCDD',//上欄線顏色
+     * 'border-left-color' => 'FFDADCDD',//左欄線顏色
+     * 'border-right-color' => 'FFDADCDD',//右欄線顏色
+     * 'border-bottom-color' => 'FFDADCDD',//下欄線顏色
+     * 'border-outline-color' => 'FFDADCDD',//外圈欄線顏色
+     * 'border-inside-color' => 'FFDADCDD',//內部欄線顏色
+     * 'background-color' => 'white'//儲存格背景顏色
+     * 'row-odd-background-color' => 'F7F7F7',//內容奇數列背景顏色
+     * 'row-even-background-color' => 'white'//內容偶數列背景顏色
+     */
+    protected function initDefault()
+    {
+        // 自定樣式集
+        $this->_classMap['mystyle'] = array(
+            'width' => 20.71, // 儲存格欄寬
+            'height' => - 1, // 儲存格欄高(-1為自動高度)
+            'format' => 'text', // 儲存格格式-文字
+            'wraptext' => true, // 儲存格自動換行
+            'font-name' => '微軟正黑體', // 字體字型
+            'font-size' => 11, // 字體大小
+            'font-color' => 'black', // 字體顏色
+            'align-vertical' => 'center', // 垂直對齊
+            'border-all-style' => 'thin', // 欄線樣式-全部
+            'border-all-color' => 'FF9F9FA0' // 欄線顏色-全部
+        );
+    }
+}
+```
+
+- 設定結構構設定檔 ocnfig (節錄)
+如標題要用自定樣式集
+
+```php=
+$this->_title[] = array(
+    'config' => array(
+        'type' => 'title',
+        'name' => 'title1',
+        // 自定樣式
+        'style' => array(
+            'font-size' => '16'
+        ),
+        // 樣式集名稱
+        'class' => 'mystyle'
+    ),
+    'defined' => array(
+        't1' => array(
+            'key' => 't1',
+            'value' => '日期',
+            'col' => '1',
+            'row' => '1',
+            // 自定樣式
+            'style' => array('format' => 'date'),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+);
+
+```
+
+### 手動 - 複雜模式
+```
+$style = new \marshung\io\style\IoStyle();
+$style->setClass(array(
+            'width' => 20.71, // 儲存格欄寬
+            'height' => - 1, // 儲存格欄高(-1為自動高度)
+            'format' => 'text', // 儲存格格式-文字
+            'wraptext' => true, // 儲存格自動換行
+            'font-name' => '微軟正黑體', // 字體字型
+            'font-size' => 11, // 字體大小
+            'font-color' => 'black', // 字體顏色
+            'align-vertical' => 'center', // 垂直對齊
+            'border-all-style' => 'thin', // 欄線樣式-全部
+            'border-all-color' => 'FF9F9FA0' // 欄線顏色-全部
+        ), 'mystyle');
+
+// 標題1
+$title1 = array(
+    'config' => array(
+        'type' => 'title',
+        'name' => 'title1',
+        // 自定樣式
+        'style' => array(
+            'font-size' => '16'
+        ),
+        // 樣式集名稱
+        'class' => 'mystyle'
+    ),
+    'defined' => array(
+        't1' => array(
+            'key' => 't1',
+            'value' => '日期',
+            'col' => '1',
+            'row' => '1',
+            // 自定樣式
+            'style' => array('format' => 'date'),
+            'class' => '',
+            'default' => '',
+            'list' => ''
+        ),
+);
+
+// IO物件建構
+$io = new \marshung\io\IO();
+
+// 手動建構相關物件
+$io->setConfig()
+    ->setBuilder()
+    ->setStyle();
+
+// 載入外部定義
+$conf = $io->getConfig()
+    ->setTitle($title1)
+    ->setTitle($title2)
+    ->setContent($content);
+
+// 略，參照： 手動 - 複雜模式
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

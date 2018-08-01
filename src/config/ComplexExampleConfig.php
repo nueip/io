@@ -246,7 +246,7 @@ class ComplexExampleConfig extends \marshung\io\config\abstracts\Config
                     'value' => '帳號',
                     'col' => '1',
                     'row' => '1',
-                    'style' => array(),
+                    'style' => array('format' => 'general'),
                     'class' => '',
                     'default' => '',
                     'list' => ''
@@ -276,7 +276,7 @@ class ComplexExampleConfig extends \marshung\io\config\abstracts\Config
                     'value' => '生日',
                     'col' => '1',
                     'row' => '1',
-                    'style' => array(),
+                    'style' => array('format' => 'date'),
                     'class' => '',
                     'default' => '',
                     'list' => ''
