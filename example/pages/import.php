@@ -1,4 +1,7 @@
 <?php
+/**
+ * example for import
+ */
 
 // IO物件建構
 $io = new \marshung\io\IO();

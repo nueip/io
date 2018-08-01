@@ -11,8 +11,14 @@ $ composer require marshung/io
 
 # 用法
 ## 有資料的結構定義物件
+需先定義好結構物件，匯出時，直接指定定義好的結構物件即可
+> 結構物件參考：
+> src/config/ComplexExampleConfig.php
+> src/config/EmptyConfig.php
+> src/config/SimpleExampleConfig.php
+
 ### 匯出
-```
+```php=
 // 取得原始資料
 $data = [
 	        [
@@ -30,18 +36,31 @@ $data = [
 	            'gender' => '1',
 	        ]
 	    ];
+```
 
+```php=
 // IO物件建構
 $io = new \marshung\io\IO();
 
 // 匯出處理 - 建構匯出資料 - 簡易模式結構定義物件-範本
 $io->export($data, $config = 'SimpleExample', $builder = 'Excel', $style = 'Io');
+```
+
+```php=
+// IO物件建構
+$io = new \marshung\io\IO();
 
 // 匯出處理 - 建構匯出資料 - 複雜模式結構定義物件-範本
 $io->export($data, $config = 'ComplexExample', $builder = 'Excel', $style = 'Io');
+```
+
+```php=
+// IO物件建構
+$io = new \marshung\io\IO();
+
 // 匯出處理 - 物件注入方式
 $config = new \marshung\io\config\SimpleExampleConfig();
-// 必要欄位設定 - 提供讀取資料時驗証用 - 有設定，且必要欄位有無資料者，跳出 - 因各版本excel對空列定義不同，可能編輯過列，就會產生沒有結尾的空列
+// 必要欄位設定 - 提供讀取資料時驗証用 - 有設定，且必要欄位有無資料者，跳出 - 因各版本excel對空列定義不同，可能編輯過列，就會產生沒有結尾的空列，導致在讀取excel時有讀不完狀況。
 $config->setOption([
     'u_no'
 ], 'requiredField');
@@ -50,9 +69,10 @@ $style = new \marshung\io\style\IoStyle();
 // 欄位B凍結
 $style->setFreeze('B');
 $io->export($data, $config, $builder, $style);
-
-
 ```
+
+> 需注意設置"必要欄位設定"，因各版本excel對空列定義不同，可能編輯過列，就會產生沒有結尾的空列，導致在讀取excel時有讀不完狀況。
+
 
 ### 匯入
 ```
@@ -68,6 +88,8 @@ var_export($data);
 ```
 
 ## 空的結構定義物件
+如果不需要格式、樣式等設定，只需將資料陣列純輸出，可使用空結構定義
+
 ### 匯出
 ```
 // 取得原始資料
@@ -108,6 +130,10 @@ var_export($data);
 ```
 
 ## 手動處理 - 簡易模式
+如果資料欄位為變動長度時，將無法定義完善的結構定義物件，此時可用手動模式
+
+> 當然，此狀況可以定義好可預期的欄位結構，然後出現額外的欄位時，使用$config的getTitle(),getContent()取出資料並改寫，再利用setTitle(),setContent()回寫，並用setList()補充對映表資料即可
+
 ### 匯出
 ```
 // 取得原始資料
@@ -167,6 +193,11 @@ $listMap = array(
 // 載入外部對映表
 $conf->setList($listMap);
 
+// 必要欄位設定 - 提供讀取資料時驗証用 - 有設定，且必要欄位有無資料者，跳出 - 因各版本excel對空列定義不同，可能編輯過列，就會產生沒有結尾的空列，導致在讀取excel時有讀不完狀況。
+$conf->setOption([
+    'u_no'
+], 'requiredField');
+
 // 匯出處理 - 建構匯出資料 - 手動處理
 $io->setData($data)->exportBuilder();
 ```
@@ -185,6 +216,10 @@ var_export($data);
 ```
 
 ## 手動處理 - 複雜模式
+如果資料欄位為變動長度時，將無法定義完善的結構定義物件，此時可用手動模式
+
+> 當然，此狀況可以定義好可預期的欄位結構，然後出現額外的欄位時，使用$config的getTitle(),getContent()取出資料並改寫，再利用setTitle(),setContent()回寫，並用setList()補充對映表資料即可
+
 ### 匯出
 ```
 // 取得原始資料
@@ -424,6 +459,11 @@ $listMap = array(
 
 // 載入外部對映表
 $conf->setList($listMap);
+
+// 必要欄位設定 - 提供讀取資料時驗証用 - 有設定，且必要欄位有無資料者，跳出 - 因各版本excel對空列定義不同，可能編輯過列，就會產生沒有結尾的空列，導致在讀取excel時有讀不完狀況。
+$conf->setOption([
+    'u_no'
+], 'requiredField');
 
 // 匯出處理 - 建構匯出資料 - 手動處理
 $io->setData($data)->exportBuilder();
