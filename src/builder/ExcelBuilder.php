@@ -314,7 +314,7 @@ class ExcelBuilder
         $this->titleBuilder();
         
         // 內容建構
-        $this->contentBuyilder();
+        $this->contentBuilder();
         
         // 結尾建構
         $this->footBuilder();
@@ -424,7 +424,7 @@ class ExcelBuilder
     /**
      * 內容建構
      */
-    public function contentBuyilder()
+    public function contentBuilder()
     {
         // 取得定義資料
         $content = $this->_config->getContent();
