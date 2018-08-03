@@ -1,15 +1,12 @@
 匯出匯入模組
 ===
 
-> Forked from https://github.com/marshung24/io
-> Original README.md file was renamed to README-forked.md
-
 # 說明
 為簡化匯出匯入使用法式，編寫此模組
 
 # 安裝
 ```
-$ composer require nueip/io
+$ composer require marshung/io
 ```
 
 # 用法
@@ -43,7 +40,7 @@ $data = [
 
 ```php=
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 
 // 匯出處理 - 建構匯出資料 - 簡易模式結構定義物件-範本
 $io->export($data, $config = 'SimpleExample', $builder = 'Excel', $style = 'Io');
@@ -51,7 +48,7 @@ $io->export($data, $config = 'SimpleExample', $builder = 'Excel', $style = 'Io')
 
 ```php=
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 
 // 匯出處理 - 建構匯出資料 - 複雜模式結構定義物件-範本
 $io->export($data, $config = 'ComplexExample', $builder = 'Excel', $style = 'Io');
@@ -59,16 +56,16 @@ $io->export($data, $config = 'ComplexExample', $builder = 'Excel', $style = 'Io'
 
 ```php=
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 
 // 匯出處理 - 物件注入方式
-$config = new \nueip\io\config\SimpleExampleConfig();
+$config = new \marshung\io\config\SimpleExampleConfig();
 // 必要欄位設定 - 提供讀取資料時驗証用 - 有設定，且必要欄位有無資料者，跳出 - 因各版本excel對空列定義不同，可能編輯過列，就會產生沒有結尾的空列，導致在讀取excel時有讀不完狀況。
 $config->setOption([
     'u_no'
 ], 'requiredField');
-$builder = new \nueip\io\builder\ExcelBuilder();
-$style = new \nueip\io\style\IoStyle();
+$builder = new \marshung\io\builder\ExcelBuilder();
+$style = new \marshung\io\style\IoStyle();
 // 欄位B凍結
 $style->setFreeze('B');
 $io->export($data, $config, $builder, $style);
@@ -80,7 +77,7 @@ $io->export($data, $config, $builder, $style);
 ### 匯入
 ```
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 // 匯入處理 - 取得匯入資料
 $data = $io->import($builder = 'Excel', $fileArgu = 'fileupload');
 $configName = $io->getConfig()->getOption('configName');
@@ -114,7 +111,7 @@ $data = [
 	    ];
 
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 // 匯出處理 - 建構匯出資料 - 空的結構定義物件
 $io->export($data, $config = 'Empty', $builder = 'Excel', $style = 'Io');
 ```
@@ -122,7 +119,7 @@ $io->export($data, $config = 'Empty', $builder = 'Excel', $style = 'Io');
 ### 匯入
 ```
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 // 匯入處理 - 取得匯入資料
 $data = $io->import($builder = 'Excel', $fileArgu = 'fileupload');
 $configName = $io->getConfig()->getOption('configName');
@@ -167,7 +164,7 @@ $defined = array(
 );
 
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 
 // 手動建構相關物件
 $io->setConfig()
@@ -208,7 +205,7 @@ $io->setData($data)->exportBuilder();
 ### 匯入
 ```
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 // 匯入處理 - 取得匯入資料
 $data = $io->import($builder = 'Excel', $fileArgu = 'fileupload');
 $configName = $io->getConfig()->getOption('configName');
@@ -433,7 +430,7 @@ $content = array(
 );
 
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 
 // 手動建構相關物件
 $io->setConfig()
@@ -475,7 +472,7 @@ $io->setData($data)->exportBuilder();
 ### 匯入
 ```
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 // 匯入處理 - 取得匯入資料
 $data = $io->import($builder = 'Excel', $fileArgu = 'fileupload');
 $configName = $io->getConfig()->getOption('configName');
@@ -558,7 +555,7 @@ var_export($data);
 ### 設定檔
 - 自定樣式檔
 ```php=
-class MyStyle extends nueip\io\style\IoStyle
+class MyStyle extends marshung\io\style\IoStyle
 {
     public function __construct()
     {
@@ -649,7 +646,7 @@ $this->_title[] = array(
 
 ### 手動 - 複雜模式
 ```
-$style = new \nueip\io\style\IoStyle();
+$style = new \marshung\io\style\IoStyle();
 $style->setClass(array(
             'width' => 20.71, // 儲存格欄寬
             'height' => - 1, // 儲存格欄高(-1為自動高度)
@@ -690,7 +687,7 @@ $title1 = array(
 );
 
 // IO物件建構
-$io = new \nueip\io\IO();
+$io = new \marshung\io\IO();
 
 // 手動建構相關物件
 $io->setConfig()
