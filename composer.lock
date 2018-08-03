@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4fdf62bb0aef40d5e41e079fb74e3156",
+    "content-hash": "5d4cdea4aed3712a12728a07c1950458",
     "packages": [
         {
             "name": "phpoffice/phpspreadsheet",
@@ -142,16 +142,16 @@
         },
         {
             "name": "yidas/phpspreadsheet-helper",
-            "version": "1.2.0",
+            "version": "1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yidas/phpspreadsheet-helper.git",
-                "reference": "6c9a48d3352ac9a67d095a37e66cf1cfc13cf9c2"
+                "reference": "a391882f1e843ac9c707c41d9998bbc1283f80bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yidas/phpspreadsheet-helper/zipball/6c9a48d3352ac9a67d095a37e66cf1cfc13cf9c2",
-                "reference": "6c9a48d3352ac9a67d095a37e66cf1cfc13cf9c2",
+                "url": "https://api.github.com/repos/yidas/phpspreadsheet-helper/zipball/a391882f1e843ac9c707c41d9998bbc1283f80bc",
+                "reference": "a391882f1e843ac9c707c41d9998bbc1283f80bc",
                 "shasum": ""
             },
             "require": {
@@ -167,7 +167,7 @@
             "license": [
                 "MIT"
             ],
-            "description": "PHP Excel Helper - Read, Create and Write Spreadsheet with easy way based on PhpSpreadsheet",
+            "description": "PHP Excel Helper - Write and read Spreadsheet with easy way based on PhpSpreadsheet",
             "homepage": "https://github.com/yidas/phpspreadsheet-helper",
             "keywords": [
                 "PHPExcel",
@@ -177,7 +177,7 @@
                 "phpspreadsheet",
                 "sheet"
             ],
-            "time": "2018-04-27T06:50:57+00:00"
+            "time": "2018-07-13T17:18:14+00:00"
         }
     ],
     "packages-dev": [],

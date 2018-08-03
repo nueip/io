@@ -1,5 +1,5 @@
 <?php
-namespace marshung\io;
+namespace nueip\io;
 
 /**
  * 初始化工廠

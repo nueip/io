@@ -1,5 +1,5 @@
 <?php
-namespace marshung\io;
+namespace nueip\io;
 
 /**
  * 匯入匯出入口物件
@@ -15,12 +15,12 @@ namespace marshung\io;
  *          'iu_sn' => ''
  *          ]);
  *         
- *          $io = new \marshung\io\IO();
+ *          $io = new \nueip\io\IO();
  *          $io->export($data, $config = 'AddIns', $builder = 'Excel', $style = 'Io');
  *         
  *          // === 匯入 ===
  *          // IO物件建構
- *          $io = new \marshung\io\IO();
+ *          $io = new \nueip\io\IO();
  *          // 匯入處理 - 取得匯入資料
  *          $data = $io->import($builder = 'Excel');
  *         
@@ -162,7 +162,7 @@ class IO
      *            參數值
      * @param string $optionName
      *            參數名稱
-     * @return \marshung\io\IO
+     * @return \nueip\io\IO
      */
     public function setOption($option, $optionName = null)
     {
@@ -195,10 +195,10 @@ class IO
      */
     public function setConfig($config = 'Empty')
     {
-        if ($config instanceof \marshung\io\config\abstracts\Config) {
+        if ($config instanceof \nueip\io\config\abstracts\Config) {
             $this->_config = $config;
         } else {
-            $this->_config = \marshung\io\ClassFactory::getConfig($config);
+            $this->_config = \nueip\io\ClassFactory::getConfig($config);
         }
         
         return $this;
@@ -215,7 +215,7 @@ class IO
         if (is_object($style)) {
             $this->_style = $style;
         } else {
-            $this->_style = \marshung\io\ClassFactory::getStyle($style);
+            $this->_style = \nueip\io\ClassFactory::getStyle($style);
         }
         
         return $this;
@@ -228,7 +228,7 @@ class IO
      *            對映表資料
      * @param string $key
      *            鍵名
-     * @return \marshung\io\config\abstracts\Config
+     * @return \nueip\io\config\abstracts\Config
      */
     public function setList(Array $mapData, $key = null)
     {
@@ -252,7 +252,7 @@ class IO
         if (is_object($builder)) {
             $this->_builder = $builder;
         } else {
-            $this->_builder = \marshung\io\ClassFactory::getBuilder($builder);
+            $this->_builder = \nueip\io\ClassFactory::getBuilder($builder);
         }
         
         return $this;

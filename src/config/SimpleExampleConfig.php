@@ -1,5 +1,5 @@
 <?php
-namespace marshung\io\config;
+namespace nueip\io\config;
 
 /**
  * 簡易模式-範本
@@ -9,7 +9,7 @@ namespace marshung\io\config;
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-06-11
  *        
  */
-class SimpleExampleConfig extends \marshung\io\config\abstracts\Config
+class SimpleExampleConfig extends \nueip\io\config\abstracts\Config
 {
 
     /**

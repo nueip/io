@@ -1,5 +1,5 @@
 <?php
-namespace marshung\io\config\abstracts;
+namespace nueip\io\config\abstracts;
 
 /**
  * IO Config abstract
@@ -334,7 +334,7 @@ abstract class Config
      *            參數值
      * @param string $optionName
      *            參數名稱
-     * @return \marshung\io\config\abstracts\Config
+     * @return \nueip\io\config\abstracts\Config
      */
     public function setOption($option, $optionName = null)
     {
@@ -354,7 +354,7 @@ abstract class Config
      *
      * @param array $data
      *            格式定義
-     * @return \marshung\io\config\abstracts\Config
+     * @return \nueip\io\config\abstracts\Config
      */
     public function setTitle($data = null)
     {
@@ -375,7 +375,7 @@ abstract class Config
      *
      * @param array $data
      *            格式定義
-     * @return \marshung\io\config\abstracts\Config
+     * @return \nueip\io\config\abstracts\Config
      */
     public function setContent($data = null)
     {
@@ -399,7 +399,7 @@ abstract class Config
      *
      * @param array $data
      *            格式定義
-     * @return \marshung\io\config\abstracts\Config
+     * @return \nueip\io\config\abstracts\Config
      */
     public function setFoot($data = null)
     {
@@ -433,7 +433,7 @@ abstract class Config
      *            對映表資料
      * @param string $key
      *            鍵名
-     * @return \marshung\io\config\abstracts\Config
+     * @return \nueip\io\config\abstracts\Config
      */
     public function setList(Array $mapData, $key = null)
     {
@@ -529,7 +529,7 @@ abstract class Config
      *
      * @param array $data
      *            原始資料內容
-     * @return \marshung\io\config\AddInsConfig
+     * @return \nueip\io\config\AddInsConfig
      */
     public function contentRefactor(Array & $data)
     {
@@ -559,7 +559,7 @@ abstract class Config
      *
      * @param array $data
      *            原始資料內容
-     * @return \marshung\io\config\AddInsConfig
+     * @return \nueip\io\config\AddInsConfig
      */
     public function contentFilter(Array & $data)
     {
@@ -582,7 +582,7 @@ abstract class Config
      *
      * @param array $data
      *            匯入的原始資料
-     * @return \marshung\io\config\abstracts\Config
+     * @return \nueip\io\config\abstracts\Config
      */
     public function contentParser(Array & $data)
     {

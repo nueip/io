@@ -1,5 +1,5 @@
 <?php
-namespace marshung\io\config;
+namespace nueip\io\config;
 
 /**
  * 空定義
@@ -7,7 +7,7 @@ namespace marshung\io\config;
  * @author Mars.Hung (tfaredxj@gmail.com) 2018-05-15
  *        
  */
-class EmptyConfig extends \marshung\io\config\abstracts\Config
+class EmptyConfig extends \nueip\io\config\abstracts\Config
 {
 
     /**

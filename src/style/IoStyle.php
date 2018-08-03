@@ -2,7 +2,7 @@
 /**
  * 參考 Attendance_record_model.php
  */
-namespace marshung\io\style;
+namespace nueip\io\style;
 
 /**
  * 樣式定義物件
@@ -143,7 +143,7 @@ class IoStyle
      *            樣式集
      * @param String $className
      *            樣式集名稱
-     * @return \marshung\io\style\IoStyle
+     * @return \nueip\io\style\IoStyle
      */
     public function setClass(Array $class, String $className)
     {

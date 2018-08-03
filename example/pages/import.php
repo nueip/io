@@ -4,7 +4,7 @@
  */
 
 // IO物件建構
-$io = new \marshung\io\IO();
+$io = new \nueip\io\IO();
 // 匯入處理 - 取得匯入資料
 $data = $io->import($builder = 'Excel', $fileArgu = 'fileupload');
 

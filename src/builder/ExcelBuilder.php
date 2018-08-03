@@ -1,5 +1,5 @@
 <?php
-namespace marshung\io\builder;
+namespace nueip\io\builder;
 
 /**
  * 格式處理總成物件
@@ -186,7 +186,7 @@ class ExcelBuilder
      *            參數值
      * @param string $optionName
      *            參數名稱
-     * @return \marshung\io\builder\ExcelBuilder
+     * @return \nueip\io\builder\ExcelBuilder
      */
     public function setOption($option, $optionName = null)
     {
@@ -249,7 +249,7 @@ class ExcelBuilder
      *            對映表資料
      * @param string $key
      *            鍵名
-     * @return \marshung\io\config\abstracts\Config
+     * @return \nueip\io\config\abstracts\Config
      */
     public function setList(Array $mapData, $key = null)
     {
@@ -303,7 +303,7 @@ class ExcelBuilder
     /**
      * 建構資料
      *
-     * @return \marshung\io\builder\ExcelBuilder
+     * @return \nueip\io\builder\ExcelBuilder
      */
     public function build()
     {
@@ -517,22 +517,22 @@ class ExcelBuilder
         // ====== 建立樣式-類型 ======
         // 建立Excel樣式 - 預設樣式
         $defaultStyle = $this->_style->getDefault();
-        \marshung\io\builder\ExcelStyleBuilder::setExcelDefaultStyle($defaultStyle, $spreadsheet);
+        \nueip\io\builder\ExcelStyleBuilder::setExcelDefaultStyle($defaultStyle, $spreadsheet);
         
         // 建立Excel樣式 - 標題樣式
         $titleStyle = $this->_style->getTitle();
         $titleRange = $this->offsetMap('title');
-        \marshung\io\builder\ExcelStyleBuilder::setExcelRangeStyle($titleStyle, $spreadsheet, $titleRange);
+        \nueip\io\builder\ExcelStyleBuilder::setExcelRangeStyle($titleStyle, $spreadsheet, $titleRange);
         
         // 建立Excel樣式 - 內容樣式
         $contentStyle = $this->_style->getContent();
         $contentRange = $this->offsetMap('content');
-        \marshung\io\builder\ExcelStyleBuilder::setExcelRangeStyle($contentStyle, $spreadsheet, $contentRange);
+        \nueip\io\builder\ExcelStyleBuilder::setExcelRangeStyle($contentStyle, $spreadsheet, $contentRange);
         
         // 建立Excel樣式 - 結尾樣式
         $footStyle = $this->_style->getFoot();
         $footRange = $this->offsetMap('foot');
-        \marshung\io\builder\ExcelStyleBuilder::setExcelRangeStyle($footStyle, $spreadsheet, $footRange);
+        \nueip\io\builder\ExcelStyleBuilder::setExcelRangeStyle($footStyle, $spreadsheet, $footRange);
         // ======
         
         // ====== 建立樣式-從Config ======
@@ -563,7 +563,7 @@ class ExcelBuilder
             $contentRange = $this->offsetMap('content', 'rowStart');
             $freezeCell = $freezeCol . $contentRange;
             // 凍結欄位
-            \marshung\io\builder\ExcelStyleBuilder::setFreeze($freezeCell, $spreadsheet);
+            \nueip\io\builder\ExcelStyleBuilder::setFreeze($freezeCell, $spreadsheet);
         }
         // ======
     }
@@ -633,7 +633,7 @@ class ExcelBuilder
      * 解析匯入資料並回傳
      *
      * @throws \Exception
-     * @return \marshung\io\builder\ExcelBuilder
+     * @return \nueip\io\builder\ExcelBuilder
      */
     public function parse()
     {
@@ -840,10 +840,10 @@ class ExcelBuilder
         $class = $this->_style->getClass($className);
         
         // 設定style樣式
-        \marshung\io\builder\ExcelStyleBuilder::setExcelRangeStyle($style, $spreadsheet, $blockRange);
+        \nueip\io\builder\ExcelStyleBuilder::setExcelRangeStyle($style, $spreadsheet, $blockRange);
         
         // 設定Class樣式
-        \marshung\io\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
+        \nueip\io\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
         
         // === 欄位 ===
         foreach ($config['defined'] as $idx => $conf) {
@@ -862,10 +862,10 @@ class ExcelBuilder
             $class = $this->_style->getClass($className);
             
             // 設定style樣式
-            \marshung\io\builder\ExcelStyleBuilder::setExcelRangeStyle($style, $spreadsheet, $blockRange);
+            \nueip\io\builder\ExcelStyleBuilder::setExcelRangeStyle($style, $spreadsheet, $blockRange);
             
             // 設定Class樣式
-            \marshung\io\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
+            \nueip\io\builder\ExcelStyleBuilder::setExcelRangeStyle($class, $spreadsheet, $blockRange);
         }
     }
 

@@ -28,7 +28,7 @@ function export1()
     ];
     
     // IO物件建構
-    $io = new \marshung\io\IO();
+    $io = new \nueip\io\IO();
     
     // 匯出處理 - 建構匯出資料 - 簡易模式結構定義物件-範本
     $io->export($data, $config = 'SimpleExample', $builder = 'Excel', $style = 'Io');
@@ -58,7 +58,7 @@ function export2()
     ];
     
     // IO物件建構
-    $io = new \marshung\io\IO();
+    $io = new \nueip\io\IO();
     
     // 匯出處理 - 建構匯出資料 - 複雜模式結構定義物件-範本
     $io->export($data, $config = 'ComplexExample', $builder = 'Excel', $style = 'Io');
@@ -88,16 +88,16 @@ function export3()
     ];
     
     // IO物件建構
-    $io = new \marshung\io\IO();
+    $io = new \nueip\io\IO();
     
     // 匯出處理 - 物件注入方式
-    $config = new \marshung\io\config\SimpleExampleConfig();
+    $config = new \nueip\io\config\SimpleExampleConfig();
     // 必要欄位設定 - 提供讀取資料時驗証用 - 有設定，且必要欄位有無資料者，跳出 - 因各版本excel對空列定義不同，可能編輯過列，就會產生沒有結尾的空列
     $config->setOption([
         'u_no'
     ], 'requiredField');
-    $builder = new \marshung\io\builder\ExcelBuilder();
-    $style = new \marshung\io\style\IoStyle();
+    $builder = new \nueip\io\builder\ExcelBuilder();
+    $style = new \nueip\io\style\IoStyle();
     // 欄位B凍結
     $style->setFreeze('B');
     $io->export($data, $config, $builder, $style);
@@ -127,7 +127,7 @@ function export4()
     ];
     
     // IO物件建構
-    $io = new \marshung\io\IO();
+    $io = new \nueip\io\IO();
     // 匯出處理 - 建構匯出資料 - 空的結構定義物件
     $io->export($data, $config = 'Empty', $builder = 'Excel', $style = 'Io');
 }
@@ -165,7 +165,7 @@ function export5()
     );
     
     // IO物件建構
-    $io = new \marshung\io\IO();
+    $io = new \nueip\io\IO();
     
     // 手動建構相關物件
     $io->setConfig()
@@ -411,7 +411,7 @@ function export6()
     );
     
     // IO物件建構
-    $io = new \marshung\io\IO();
+    $io = new \nueip\io\IO();
     
     // 手動建構相關物件
     $io->setConfig()

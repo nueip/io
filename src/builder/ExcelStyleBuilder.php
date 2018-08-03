@@ -1,5 +1,5 @@
 <?php
-namespace marshung\io\builder;
+namespace nueip\io\builder;
 
 /**
  * 格式處理總成物件-樣式建構
